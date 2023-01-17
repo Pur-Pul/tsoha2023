@@ -1,5 +1,5 @@
-from flask import Flask
-from flask import render_template, redirect, request, session
+from flask import Flask, render_template, redirect, request, session
+from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 
@@ -10,7 +10,7 @@ def index():
 @app.route("/login", methods=["POST"])
 def login():
     username = request.form["username"]
-    password = request.form["password"]
+    hash_value = generate_password_hash(request.form["password"])
     session["username"] = username
     return redirect("/")
 
