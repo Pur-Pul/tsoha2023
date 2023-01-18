@@ -10,6 +10,9 @@ python = "^3.8"
 flask = "^2.2.2"
 invoke = "^2.0.0"
 pylint = "^2.15.10"
+flask-sqlalchemy = "^3.0.2"
+psycopg2 = "^2.9.5"
+python-dotenv = "^0.21.0"
 
 
 [build-system]
