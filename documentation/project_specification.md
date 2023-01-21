@@ -9,5 +9,6 @@ The database will consist of the following tables:
 - Images: All images, including not shared ones.
 - Replies: Text replies to images.
 - Likes: Likes to images.
+- Editor: A table containing data for unfinished pictures. This will allow users to take a break and continue drawing pictures later where they left off.
 
-I am not yet sure how to properly store the images. I could store the images as files and store their file location in the database, but it might be better to store the images in the database itself. Storing the images directly in the database may allow easier editing of the images, but it will take up more space and will be more problematic to display. I might end up storing unfinished images in the database and the already posted ones as files to more easily display them.
+I am not yet completely sure how to properly store the images. Storing the images as files and store their file location in the database allows for easy displaying of the images aswell as smaller space complexity. Storing the images directly in the database may allow easier editing of the images, but it will take up more space and will be more problematic to display. I will begin by storing unfinished images in the database and the already posted ones as files to more easily display them.
