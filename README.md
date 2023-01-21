@@ -1,3 +1,5 @@
+[Project specification](documentation/project_specification.md)
+
 Install by running the following command in the root of the repository:
 ```bash
 poetry install
