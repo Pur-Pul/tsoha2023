@@ -1,8 +1,8 @@
 [Project specification](documentation/project_specification.md)
 
-Install by running the following command in the root of the repository:
+Install by running the following command in venv:
 ```bash
-poetry install
+pip install -r requirements.txt
 ```
 
 Start the program using the following command:
