@@ -1,16 +1,17 @@
 [Project specification](documentation/project_specification.md)
 
-Install by running the following command in venv:
+The following commands should be run in the venv
+Install by running the following command
 ```bash
 pip install -r requirements.txt
 ```
 
 Start the program using the following command:
 ```bash
-poetry run invoke start
+invoke start
 ```
 
 Pylint can be run with the following command:
 ```bash
-poetry run invoke lint
+invoke lint
 ```
