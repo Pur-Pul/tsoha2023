@@ -2,7 +2,7 @@
 <head>
     <title>Editor</title>
     <style>
-        canvas {
+        #pixelCanvas {
             width: 512px;
             height: 512px;
             image-rendering: pixelated;
@@ -10,17 +10,51 @@
     </style>
 </head>
 <body>
-    <form onsubmit="return false" >
-        <label for="color_code">Color code:</label><br>
-        <input type="text" id="color_code" name="color_code" value="#ACD3ED"><br>
-    </form>
-    <canvas id="myCanvas" width="32" height="32"
+    <div class="slidecontainer">
+        <input type="range" min="0" max="255" value="255" class="slider" id="red_slider">
+        <p>Red: <span id="red">255</span></p><br>
+        <input type="range" min="0" max="255" value="255" class="slider" id="green_slider">
+        <p>Green: <span id="green">255</span></p><br>
+        <input type="range" min="0" max="255" value="255" class="slider" id="blue_slider">
+        <p>Blue: <span id="blue">255</span></p>
+    </div>
+
+    <canvas id="colorPicker" width="32" height="32"></canvas><br>
+
+    <canvas id="pixelCanvas" width="32" height="32"
     style="border:1px solid #c3c3c3;">
     Your browser does not support the canvas element.
     </canvas>
     
     <script>
-        var canvas = document.getElementById("myCanvas");
+        //Sliders
+        var slider = {
+            red: document.getElementById("red_slider"),
+            green: document.getElementById("green_slider"),
+            blue: document.getElementById("blue_slider"),
+            value: {
+                red: document.getElementById("red"),
+                green: document.getElementById("green"),
+                blue: document.getElementById("blue")
+            }
+        }
+
+        slider.red.oninput = function() {
+            slider.value.red.innerHTML = this.value
+            updateColorPicker();
+        }
+        slider.green.oninput = function() {
+            slider.value.green.innerHTML = this.value
+            updateColorPicker();
+        }
+        slider.blue.oninput = function() {
+            slider.value.blue.innerHTML = this.value
+            updateColorPicker();
+        }
+
+        //Canvas
+        var canvas = document.getElementById("pixelCanvas");
+        var colorPicker = document.getElementById("colorPicker");
         var color_code_entry = document.getElementById("color_code");
         var ctx = canvas.getContext("2d");
         let coordinates = { x: 0, y: 0 };
@@ -31,6 +65,27 @@
         document.addEventListener('mousedown', draw)
         document.addEventListener('mouseup', stop);
         
+        function updateColorPicker(event) {
+            colorCtx = colorPicker.getContext("2d");
+            colorCtx.fillStyle = RGBtoHex()
+            colorCtx.fillRect(0, 0, colorPicker.clientWidth, colorPicker.clientHeight);
+        }
+        updateColorPicker();
+
+        function RGBtoHex() {
+            red = Number(slider.red.value).toString(16);
+            red = red.length == 1 ? "0" + red : red;
+           
+            green = Number(slider.green.value).toString(16);
+            green = green.length == 1 ? "0" + green : green;
+            
+            blue = Number(slider.blue.value).toString(16);
+            blue = blue.length == 1 ? "0" + blue : blue;
+            
+            hex =  "#" + red + green + blue;
+            return hex;
+        }
+
         function start(event) {
             document.addEventListener('mousemove', draw);
             reposition(event);
@@ -47,7 +102,7 @@
 
         function draw(event) {
             ctx.beginPath();
-            ctx.fillStyle = color_code_entry.value;
+            ctx.fillStyle = RGBtoHex();
             reposition(event);
             ctx.fillRect(coordinates.x, coordinates.y, 1, 1);
             ctx.fill();
