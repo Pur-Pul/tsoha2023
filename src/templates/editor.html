@@ -1,0 +1,58 @@
+<html>
+<head>
+    <title>Editor</title>
+    <style>
+        canvas {
+            width: 512px;
+            height: 512px;
+            image-rendering: pixelated;
+        }
+    </style>
+</head>
+<body>
+    <form onsubmit="return false" >
+        <label for="color_code">Color code:</label><br>
+        <input type="text" id="color_code" name="color_code" value="#ACD3ED"><br>
+    </form>
+    <canvas id="myCanvas" width="32" height="32"
+    style="border:1px solid #c3c3c3;">
+    Your browser does not support the canvas element.
+    </canvas>
+    
+    <script>
+        var canvas = document.getElementById("myCanvas");
+        var color_code_entry = document.getElementById("color_code");
+        var ctx = canvas.getContext("2d");
+        let coordinates = { x: 0, y: 0 };
+        let scale = canvas.clientWidth / 32;
+
+        //listeners
+        document.addEventListener('mousedown', start);
+        document.addEventListener('mousedown', draw)
+        document.addEventListener('mouseup', stop);
+        
+        function start(event) {
+            document.addEventListener('mousemove', draw);
+            reposition(event);
+        }
+
+        function reposition(event) {
+            coordinates.x = Math.floor((event.clientX - canvas.offsetLeft)/scale);
+            coordinates.y = Math.floor((event.clientY - canvas.offsetTop)/scale);
+        }
+
+        function stop() {
+            document.removeEventListener('mousemove', draw);
+        }
+
+        function draw(event) {
+            ctx.beginPath();
+            ctx.fillStyle = color_code_entry.value;
+            reposition(event);
+            ctx.fillRect(coordinates.x, coordinates.y, 1, 1);
+            ctx.fill();
+        }
+
+    </script>
+</body>
+</html>

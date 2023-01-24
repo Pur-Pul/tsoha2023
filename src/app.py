@@ -36,3 +36,7 @@ def register():
     username = request.form["username"]
     hash_value = generate_password_hash(request.form["password"])
     user_service.register(username, hash_value)
+
+@app.route("/editor")
+def editor():
+    return render_template("editor.html")
