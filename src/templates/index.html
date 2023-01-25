@@ -2,7 +2,18 @@
 <h1>Home page</h1>
 <b>Weclome!</b>
 <p>{{ message }}</p>
-{% if session.username %}
+{% if session.register %}
+<b>Please register.</b>
+<form action="/register" method="POST">
+<p>Username:<br>
+<input type="text" name="username"></p>
+<p>Password:<br>
+<input type="password" name="password"></p>
+<input type="submit" value="Register">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+</form>
+<p>Already have an account? <a href="/">Login</a></p>
+{% elif session.username %}
 <p>You are signed in as {{ session.username }}</p>
 <a href="/logout">Logout</a>
 {% else %}
@@ -13,5 +24,7 @@
 <p>Password:<br>
 <input type="password" name="password"></p>
 <input type="submit" value="Login">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 </form>
+<p>Don't have an account? <a href="/register">Register</a></p>
 {% endif %}

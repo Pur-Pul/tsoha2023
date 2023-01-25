@@ -11,11 +11,11 @@
 </head>
 <body>
     <div class="slidecontainer">
-        <input type="range" min="0" max="255" value="255" class="slider" id="red_slider">
+        <input type="range" min="0" max="255" value="0" class="slider" id="red_slider">
         <p>Red: <span id="red">255</span></p><br>
-        <input type="range" min="0" max="255" value="255" class="slider" id="green_slider">
+        <input type="range" min="0" max="255" value="0" class="slider" id="green_slider">
         <p>Green: <span id="green">255</span></p><br>
-        <input type="range" min="0" max="255" value="255" class="slider" id="blue_slider">
+        <input type="range" min="0" max="255" value="0" class="slider" id="blue_slider">
         <p>Blue: <span id="blue">255</span></p>
     </div>
 
@@ -26,88 +26,10 @@
     Your browser does not support the canvas element.
     </canvas>
     
-    <script>
-        //Sliders
-        var slider = {
-            red: document.getElementById("red_slider"),
-            green: document.getElementById("green_slider"),
-            blue: document.getElementById("blue_slider"),
-            value: {
-                red: document.getElementById("red"),
-                green: document.getElementById("green"),
-                blue: document.getElementById("blue")
-            }
-        }
-
-        slider.red.oninput = function() {
-            slider.value.red.innerHTML = this.value
-            updateColorPicker();
-        }
-        slider.green.oninput = function() {
-            slider.value.green.innerHTML = this.value
-            updateColorPicker();
-        }
-        slider.blue.oninput = function() {
-            slider.value.blue.innerHTML = this.value
-            updateColorPicker();
-        }
-
-        //Canvas
-        var canvas = document.getElementById("pixelCanvas");
-        var colorPicker = document.getElementById("colorPicker");
-        var color_code_entry = document.getElementById("color_code");
-        var ctx = canvas.getContext("2d");
-        let coordinates = { x: 0, y: 0 };
-        let scale = canvas.clientWidth / 32;
-
-        //listeners
-        document.addEventListener('mousedown', start);
-        document.addEventListener('mousedown', draw)
-        document.addEventListener('mouseup', stop);
-        
-        function updateColorPicker(event) {
-            colorCtx = colorPicker.getContext("2d");
-            colorCtx.fillStyle = RGBtoHex()
-            colorCtx.fillRect(0, 0, colorPicker.clientWidth, colorPicker.clientHeight);
-        }
-        updateColorPicker();
-
-        function RGBtoHex() {
-            red = Number(slider.red.value).toString(16);
-            red = red.length == 1 ? "0" + red : red;
-           
-            green = Number(slider.green.value).toString(16);
-            green = green.length == 1 ? "0" + green : green;
-            
-            blue = Number(slider.blue.value).toString(16);
-            blue = blue.length == 1 ? "0" + blue : blue;
-            
-            hex =  "#" + red + green + blue;
-            return hex;
-        }
-
-        function start(event) {
-            document.addEventListener('mousemove', draw);
-            reposition(event);
-        }
-
-        function reposition(event) {
-            coordinates.x = Math.floor((event.clientX - canvas.offsetLeft)/scale);
-            coordinates.y = Math.floor((event.clientY - canvas.offsetTop)/scale);
-        }
-
-        function stop() {
-            document.removeEventListener('mousemove', draw);
-        }
-
-        function draw(event) {
-            ctx.beginPath();
-            ctx.fillStyle = RGBtoHex();
-            reposition(event);
-            ctx.fillRect(coordinates.x, coordinates.y, 1, 1);
-            ctx.fill();
-        }
-
-    </script>
+    <script type="text/javascript" src="scripts/editor.js"></script>
+    <form action="/editor" method="POST">
+        <input type="submit" value="Save">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    </form>
 </body>
 </html>
