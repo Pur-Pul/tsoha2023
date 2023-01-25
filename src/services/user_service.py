@@ -4,7 +4,7 @@ class UserService:
     def __init__(self, db):
         self._db = db
     
-    def _fetch_user(self, username):
+    def fetch_user_id(self, username):
         user = self._db.session.execute(
             "SELECT id, password FROM users WHERE username=:username",
             {"username":username}
@@ -12,11 +12,11 @@ class UserService:
         return user
 
     def validate_credentials(self, username, password):
-        user = self._fetch_user(username)
+        user = self.fetch_user_id(username)
         return user and check_password_hash(user.password, password)
     
     def register(self, username, hash_value):
-        if self._fetch_user(username):
+        if self.fetch_user_id(username):
             return False
         else:
             self._db.session.execute(

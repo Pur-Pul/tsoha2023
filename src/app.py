@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from werkzeug.security import generate_password_hash
 from services import UserService
+from services import EditorService
 from os import getenv
 import secrets
 
@@ -15,6 +16,7 @@ csrf.init_app(app)
 db = SQLAlchemy(app)
 
 user_service = UserService(db)
+editor_service = EditorService(db)
 
 @app.route("/")
 def index():
@@ -53,6 +55,8 @@ def editor():
     if request.method == "GET":
         if not session["username"]:
             return redirect("/")
-        return render_template("editor.html")
+
+        actions = EditorService.get_actions(user_service.fetch_user_id(session["username"]))
+        return render_template("editor.html", actions)
     else:
         return redirect("/")
