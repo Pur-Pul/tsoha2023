@@ -6,6 +6,7 @@ from services import UserService
 from services import EditorService
 from os import getenv
 import secrets
+import random
 
 app = Flask(__name__)
 app.secret_key = getenv("SECRET_KEY")
@@ -55,8 +56,16 @@ def editor():
     if request.method == "GET":
         if not session["username"]:
             return redirect("/")
-
-        actions = EditorService.get_actions(user_service.fetch_user_id(session["username"]))
-        return render_template("editor.html", actions)
+        actions = editor_service.get_actions(user_service.get_id(session["username"]))
+        actions=[]
+        coords=[]
+        for x in range(0,32):
+            for y in range(0,32):
+                coords.append((x,y))
+        random.shuffle(coords)
+        for i in range(0,1024):
+            actions.append((i,coords[i][0],coords[i][1],"#000000"))
+        print(actions)
+        return render_template("editor.html", actions=actions) #[(1,1,2,"#000000"),(2,3,4,"#000000"),(3,5,6,"#000000")]
     else:
         return redirect("/")

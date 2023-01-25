@@ -29,6 +29,7 @@ var colorPicker = document.getElementById("colorPicker");
 var color_code_entry = document.getElementById("color_code");
 var ctx = canvas.getContext("2d");
 
+
 let coordinates = { x: 0, y: 0 };
 let scale = canvas.clientWidth / 32;
 let CANVAS_WIDTH = 32;
@@ -37,9 +38,11 @@ ctx.fillStyle = "white";
 ctx.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
 
 //listeners
-document.addEventListener('mousedown', start);
-document.addEventListener('mousedown', draw)
-document.addEventListener('mouseup', stop);
+function setup() {
+    document.addEventListener('mousedown', start);
+    document.addEventListener('mousedown', draw)
+    document.addEventListener('mouseup', stop);
+}
 
 function updateColorPicker() {
     colorCtx = colorPicker.getContext("2d");
@@ -81,5 +84,12 @@ function draw(event) {
     ctx.fillStyle = RGBtoHex();
     reposition(event);
     ctx.fillRect(coordinates.x, coordinates.y, 1, 1);
-    ctx.fill();
+}
+let pixels_drawn = 0
+function progressive_draw(action) {
+    ctx.beginPath();
+    ctx.fillStyle = action[3];
+    
+    setTimeout(function() {ctx.fillRect(action[1], action[2], 1, 1);pixels_drawn++;if (pixels_drawn==1024) {setup();}}, action[0]*2);
+    
 }

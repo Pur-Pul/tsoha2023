@@ -36,7 +36,7 @@ class EditorService:
     def get_actions(self, user_id) -> list:
         actions = self._db.session.execute(
             """
-            SELECT row_number, col_number, color
+            SELECT order_number, row_number, col_number, color
             FROM editors 
             WHERE user_id=:user_id
             ORDER BY order_number
