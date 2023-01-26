@@ -14,7 +14,7 @@ class EditorService:
                 col_number,
                 color
             ) VALUES (
-                :username,
+                :user_id,
                 :order_number,
                 :row,
                 :col,
@@ -27,11 +27,23 @@ class EditorService:
                 "color":color
             }
         )
+        self._db.session.commit()
 
     def color_pixels(self, pixels : list, color : str, user_id : int):
+        result = self._db.session.execute(
+            """
+            SELECT order_number
+            FROM editors 
+            WHERE user_id=:user_id
+            ORDER BY order_number DESC
+            """,{
+                "user_id":user_id,
+            }
+        ).fetchone()
+        if result:
+            self._action_counter = result[0]+1
         for pixel in pixels:
             self._add_pixel(*pixel, color, user_id)
-        self._action_counter += 1
     
     def get_actions(self, user_id) -> list:
         actions = self._db.session.execute(
@@ -44,4 +56,16 @@ class EditorService:
                 "user_id":user_id,
             }
         ).fetchall()
+        actions = [tuple(row) for row in actions]
         return list(actions)
+
+    def clear_actions(self, user_id):
+        self._db.session.execute(
+            """
+            DELETE FROM editors
+            WHERE user_id=:user_id
+            """,{
+                "user_id":user_id
+            }
+        )
+        self._db.session.commit()

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, session, abort
+from flask import Flask, render_template, redirect, request, session, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from werkzeug.security import generate_password_hash
@@ -12,8 +12,8 @@ app = Flask(__name__)
 app.secret_key = getenv("SECRET_KEY")
 app.config["SQLALCHEMY_DATABASE_URI"] = getenv("DATABASE_URL").replace("postgres://", "postgresql://", 1)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-csrf = CSRFProtect()
-csrf.init_app(app)
+#csrf = CSRFProtect()
+#csrf.init_app(app)
 db = SQLAlchemy(app)
 
 user_service = UserService(db)
@@ -30,7 +30,6 @@ def login():
     password = request.form["password"]
     if user_service.validate_credentials(username, password):
         session["username"] = username
-        session["csrf_token"] = secrets.token_hex(16)
         return redirect("/")
     else:
         return render_template("index.html", message = "Incorrect login credentials")
@@ -57,15 +56,20 @@ def editor():
         if not session["username"]:
             return redirect("/")
         actions = editor_service.get_actions(user_service.get_id(session["username"]))
-        actions=[]
-        coords=[]
-        for x in range(0,32):
-            for y in range(0,32):
-                coords.append((x,y))
-        random.shuffle(coords)
-        for i in range(0,1024):
-            actions.append((i,coords[i][0],coords[i][1],"#000000"))
-        print(actions)
-        return render_template("editor.html", actions=actions) #[(1,1,2,"#000000"),(2,3,4,"#000000"),(3,5,6,"#000000")]
-    else:
-        return redirect("/")
+        return render_template("editor.html", actions=actions, action_count=len(actions))
+    elif request.method == "POST":
+        jsdata = request.get_json()
+        pixels = []
+        for item in jsdata.values():
+            if isinstance(item, dict):
+                pixels.append((item["x"], item["y"]))
+        editor_service.color_pixels(pixels, jsdata["color"],user_service.get_id(session["username"]))
+
+        res = make_response(jsonify({"message": "JSON recieved"}), 200)
+
+        return res
+
+@app.route("/editor/clear", methods=["POST"])
+def clear():
+    editor_service.clear_actions(user_service.get_id(session["username"]))
+    return redirect("/editor")

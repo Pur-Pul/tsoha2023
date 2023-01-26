@@ -34,6 +34,7 @@ let coordinates = { x: 0, y: 0 };
 let scale = canvas.clientWidth / 32;
 let CANVAS_WIDTH = 32;
 let CANVAS_HEIGHT = 32;
+let csrf_token = "none";
 ctx.fillStyle = "white";
 ctx.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
 
@@ -65,7 +66,25 @@ function RGBtoHex() {
     return hex;
 }
 
+let stroke = {}
+let pointer = 0
+
+function add_to_stroke() {
+    if (pointer == 0) {
+        stroke["color"] = RGBtoHex();
+    }
+    if (pointer != 0 && stroke[pointer-1].x == coordinates.x && stroke[pointer-1].y == coordinates.y) {
+        return
+    }
+    stroke[pointer] = {};
+    stroke[pointer]["x"] = coordinates.x;
+    stroke[pointer]["y"] = coordinates.y;
+    
+    pointer++;
+}
+
 function start(event) {
+    
     document.addEventListener('mousemove', draw);
     reposition(event);
 }
@@ -77,19 +96,47 @@ function reposition(event) {
 
 function stop() {
     document.removeEventListener('mousemove', draw);
+    if (pointer == 0) {
+        return
+    }
+    fetch("/editor", {
+        method: "POST",
+        credentials: "include",
+        body: JSON.stringify(stroke),
+        cache: "no-cache",
+        headers: new Headers({
+            "content-type": "application/json"
+        })
+    })
+    pointer = 0
+    for (i in stroke) {
+        stroke[i] = undefined;
+    }
 }
 
 function draw(event) {
-    ctx.beginPath();
-    ctx.fillStyle = RGBtoHex();
     reposition(event);
+    if (coordinates.x >= CANVAS_WIDTH || coordinates.x < 0 || coordinates.y >= CANVAS_HEIGHT || coordinates.y < 0) {
+        return
+    }
+    ctx.fillStyle = RGBtoHex();
     ctx.fillRect(coordinates.x, coordinates.y, 1, 1);
+    add_to_stroke();
 }
+
 let pixels_drawn = 0
-function progressive_draw(action) {
-    ctx.beginPath();
-    ctx.fillStyle = action[3];
-    
-    setTimeout(function() {ctx.fillRect(action[1], action[2], 1, 1);pixels_drawn++;if (pixels_drawn==1024) {setup();}}, action[0]*2);
-    
+function progressive_draw(action, count) {
+    setTimeout(function() {
+        ctx.fillStyle = action[3];
+        ctx.fillRect(action[1], action[2], 1, 1);
+        pixels_drawn++;
+        if (pixels_drawn==count) {
+            setup();
+        }
+    }, action[0]*100);
+}
+
+function setup_csrf() {
+    console.log("hello");
+    csrf_token = "new";
 }

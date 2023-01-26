@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
     <title>Editor</title>
@@ -27,12 +28,15 @@
     </canvas>
     
     <script type="text/javascript" src="{{url_for('static', filename='editor.js')}}"></script>
+    {% if actions %}
     {% for action in actions %}
-    <script type="text/javascript">progressive_draw({{action|tojson}})</script>
+    <script type="text/javascript">progressive_draw({{action|tojson}},{{action_count|tojson}});</script>
     {% endfor %}
-    <form action="/editor" method="POST">
-        <input type="submit" value="Save">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% else %}
+    <script type="text/javascript">setup();</script>
+    {% endif %}
+    <form action="/editor/clear" method="POST">
+        <input type="submit" value="Clear">  
     </form>
 </body>
 </html>
