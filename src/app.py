@@ -73,3 +73,15 @@ def editor():
 def clear():
     editor_service.clear_actions(user_service.get_id(session["username"]))
     return redirect("/editor")
+
+@app.route("/editor/save_to_profile", methods=["POST"])
+def save_to_profile():
+    editor_service.save_as_image(user_service.get_id(session["username"]))
+    return redirect("/editor")
+
+@app.route("/posts", methods=["GET"])
+def posts():
+    image_posts=[]
+    for id in editor_service.get_image_ids():
+        image_posts.append(editor_service.get_image(id))
+    return render_template("posts.html", image_posts=image_posts)
