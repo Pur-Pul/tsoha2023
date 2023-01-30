@@ -79,9 +79,10 @@ def save_to_profile():
     editor_service.save_as_image(user_service.get_id(session["username"]))
     return redirect("/editor")
 
-@app.route("/posts", methods=["GET"])
-def posts():
-    image_posts=[]
-    for id in editor_service.get_image_ids():
-        image_posts.append(editor_service.get_image(id))
-    return render_template("posts.html", image_posts=image_posts)
+@app.route("/profile/<username>", methods=["GET"])
+def profile(username):
+    images=[]
+    for id in editor_service.get_image_ids(user_service.get_id(username)):
+        images.append(editor_service.get_image(id))
+    print(images)
+    return render_template("profile.html", images=images, username=username)

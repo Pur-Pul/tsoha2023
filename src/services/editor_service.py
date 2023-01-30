@@ -111,12 +111,14 @@ class EditorService:
                 """
                 INSERT INTO images (
                     image_id,
+                    user_id,
                     row_number,
                     col_number,
                     color,
                     order_number
                 ) VALUES (
                     :image_id,
+                    :user_id,
                     :row_number,
                     :col_number,
                     :color,
@@ -124,6 +126,7 @@ class EditorService:
                 )
                 """, {
                     "image_id":image_id,
+                    "user_id":user_id,
                     "row_number":pixel.row_number,
                     "col_number":pixel.col_number,
                     "color":pixel.color,
@@ -146,13 +149,16 @@ class EditorService:
         image = [tuple(row) for row in image]
         return list(image)
 
-    def get_image_ids(self):
+    def get_image_ids(self, user_id):
         image_ids = self._db.session.execute(
             """
             SELECT DISTINCT image_id
             FROM images
+            WHERE user_id=:user_id
             ORDER BY image_id
-            """
+            """, {
+                "user_id": user_id
+            }
         ).fetchall()
         image_ids = [row[0] for row in image_ids]
         return list(image_ids)

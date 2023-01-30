@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Posts</title>
-<h1>Posts</h1>
+<title>{{username}}'s profile</title>
+<h1>{{username}}'s images</h1>
 <style>
     #pixelCanvas {
         width: 512px;
@@ -15,13 +15,13 @@
 <body>
 <script type="text/javascript" src="{{url_for('static', filename='progressive_draw.js')}}"></script>
 
-{% for post in image_posts %}
+{% for image in images %}
 <canvas data-drawn="false" id="pixelCanvas" width="32" height="32"
 style="border:1px solid #c3c3c3;">
 Your browser does not support the canvas element.
-</canvas>
+</canvas><p></p>
 {% endfor %}
-<script type="text/javascript">var ctx; function setup(){} draw_images({{image_posts|tojson}});</script>
+<script type="text/javascript">var ctx; function setup(){} draw_images({{images|tojson}});</script>
 
 </body>
 </html>

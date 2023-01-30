@@ -23,7 +23,6 @@ function draw_pixel(pixel, context, last) {
 }
 
 function draw_images(images) {
-    
     canvases = document.querySelectorAll("[id=pixelCanvas]");
     canvases.forEach(canvas => {
         canvas.setAttribute('data-drawn', false);
@@ -31,10 +30,11 @@ function draw_images(images) {
     document.post_images = images;
     document.canvases = canvases;
     document.addEventListener('scroll', draw_if_visible);
-        
+    document.addEventListener('DOMContentLoaded', draw_if_visible);
 }
 
 function draw_if_visible(event) {
+    console.log('here');
     images = event.currentTarget.post_images;
     canvases = event.currentTarget.canvases;
 
