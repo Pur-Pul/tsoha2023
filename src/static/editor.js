@@ -124,17 +124,7 @@ function draw(event) {
     add_to_stroke();
 }
 
-let pixels_drawn = 0
-function progressive_draw(action, count) {
-    setTimeout(function() {
-        ctx.fillStyle = action[3];
-        ctx.fillRect(action[1], action[2], 1, 1);
-        pixels_drawn++;
-        if (pixels_drawn==count) {
-            setup();
-        }
-    }, action[0]*100);
-}
+
 
 function setup_csrf() {
     console.log("hello");

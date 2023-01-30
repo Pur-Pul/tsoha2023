@@ -135,7 +135,7 @@ class EditorService:
     def get_image(self, image_id):
         image = self._db.session.execute(
             """
-            SELECT row_number, col_number, color, order_number
+            SELECT order_number, row_number, col_number, color
             FROM images
             WHERE image_id=:image_id
             ORDER BY order_number

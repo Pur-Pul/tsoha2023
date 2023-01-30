@@ -3,12 +3,25 @@
 <head>
 <title>Posts</title>
 <h1>Posts</h1>
+<style>
+    #pixelCanvas {
+        width: 512px;
+        height: 512px;
+        image-rendering: pixelated;
+    }
+</style>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 </head>
 <body>
-<ul>
+<script type="text/javascript" src="{{url_for('static', filename='progressive_draw.js')}}"></script>
+
 {% for post in image_posts %}
-<li>{{ post }}
+<canvas data-drawn="false" id="pixelCanvas" width="32" height="32"
+style="border:1px solid #c3c3c3;">
+Your browser does not support the canvas element.
+</canvas>
 {% endfor %}
-</ul>
+<script type="text/javascript">var ctx; function setup(){} draw_images({{image_posts|tojson}});</script>
+
 </body>
 </html>

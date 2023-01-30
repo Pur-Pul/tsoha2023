@@ -28,10 +28,9 @@
     </canvas>
     
     <script type="text/javascript" src="{{url_for('static', filename='editor.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='progressive_draw.js')}}"></script>
     {% if actions %}
-    {% for action in actions %}
-    <script type="text/javascript">progressive_draw({{action|tojson}},{{action_count|tojson}});</script>
-    {% endfor %}
+    <script type="text/javascript">progressive_draw({{actions|tojson}});</script>
     {% else %}
     <script type="text/javascript">setup();</script>
     {% endif %}
