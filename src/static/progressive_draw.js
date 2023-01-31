@@ -3,6 +3,9 @@ var canvases = undefined;
 function progressive_draw(image) {
     last = false;
     for (i in image) {
+        if (i == "id") {
+            continue;
+        }
         if (i == Object.keys(image).length - 1) {
             last = true;
         }
@@ -34,13 +37,12 @@ function draw_images(images) {
 }
 
 function draw_if_visible(event) {
-    console.log('here');
     images = event.currentTarget.post_images;
     canvases = event.currentTarget.canvases;
 
     for (i in images) {
-        image = images[i];
-        canvas = canvases[i]
+        image = JSON.parse(images[i]);
+        canvas = canvases[i];
     
         var top = $(window).scrollTop();
         var bottom = top + $(window).height();

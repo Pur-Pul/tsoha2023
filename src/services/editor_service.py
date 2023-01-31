@@ -146,8 +146,10 @@ class EditorService:
                 "image_id": image_id
             }
         ).fetchall()
-        image = [tuple(row) for row in image]
-        return list(image)
+        image_dict = {"id" : image_id}
+        for i, row in enumerate(image):
+            image_dict[i] = tuple(row)
+        return image_dict
 
     def get_image_ids(self, user_id):
         image_ids = self._db.session.execute(

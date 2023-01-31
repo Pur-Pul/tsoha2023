@@ -7,6 +7,7 @@ from services import EditorService
 from os import getenv
 import secrets
 import random
+import json
 
 app = Flask(__name__)
 app.secret_key = getenv("SECRET_KEY")
@@ -81,8 +82,12 @@ def save_to_profile():
 
 @app.route("/profile/<username>", methods=["GET"])
 def profile(username):
-    images=[]
+    images={}
     for id in editor_service.get_image_ids(user_service.get_id(username)):
-        images.append(editor_service.get_image(id))
-    print(images)
+        images[id] = json.dumps(editor_service.get_image(id))
     return render_template("profile.html", images=images, username=username)
+
+@app.route("/make-post", methods=["POST"])
+def make_post():
+    print(request.get_json())
+    return redirect("/profile/"+session["username"])
