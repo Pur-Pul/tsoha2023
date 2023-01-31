@@ -4,6 +4,17 @@ class UserService:
     def __init__(self, db):
         self._db = db
     
+    def clear_user(self, user_id):
+        self._db.session.execute(
+            """
+            DELETE FROM users
+            WHERE id=:id
+            """, {
+                "id": user_id
+            }
+        )
+        self._db.session.commit()
+    
     def _fetch_user(self, username):
         user = self._db.session.execute(
             "SELECT id, password FROM users WHERE username=:username",

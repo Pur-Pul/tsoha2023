@@ -2,8 +2,7 @@ from flask import Flask, render_template, redirect, request, session, jsonify, m
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from werkzeug.security import generate_password_hash
-from services import UserService
-from services import EditorService
+from services import UserService, EditorService, ImageService, PostService
 from os import getenv
 import secrets
 import random
@@ -19,6 +18,11 @@ db = SQLAlchemy(app)
 
 user_service = UserService(db)
 editor_service = EditorService(db)
+image_service = ImageService(db)
+post_service = PostService(db)
+
+def validate_user_id(id):
+    return user_service.get_id(session["username"]) == id
 
 @app.route("/")
 def index():
@@ -77,17 +81,20 @@ def clear():
 
 @app.route("/editor/save_to_profile", methods=["POST"])
 def save_to_profile():
-    editor_service.save_as_image(user_service.get_id(session["username"]))
+    image_service.save_as_image(user_service.get_id(session["username"]))
     return redirect("/editor")
 
 @app.route("/profile/<username>", methods=["GET"])
 def profile(username):
     images={}
-    for id in editor_service.get_image_ids(user_service.get_id(username)):
-        images[id] = json.dumps(editor_service.get_image(id))
+    for id in image_service.get_image_ids(user_service.get_id(username)):
+        images[id] = json.dumps(image_service.get_image(id))
     return render_template("profile.html", images=images, username=username)
 
 @app.route("/make-post", methods=["POST"])
 def make_post():
-    print(request.get_json())
+    owner_id = image_service.get_image_owner_id(request.get_json()["id"])
+    if not validate_user_id(owner_id):
+        return "Invalid post request"
+    post_service.make_post(request.get_json()["id"], request.get_json()["title"])
     return redirect("/profile/"+session["username"])
