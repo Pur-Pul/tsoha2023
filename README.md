@@ -5,8 +5,8 @@ Clone this repository and create a .env file in the root directory.
 
 ### Contents of .env:
 ```bash
-DATABASE_URL=<tietokannan-paikallinen-osoite>
-SECRET_KEY=<salainen-avain>
+DATABASE_URL=<url-to-the-local-database>
+SECRET_KEY=<the-secret-key-for-the-database>
 ```
 
 Create the virtual environment with the following command:
