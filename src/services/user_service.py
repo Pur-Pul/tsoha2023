@@ -1,3 +1,6 @@
+from werkzeug.security import check_password_hash
+
+
 class UserService:
     def __init__(self, database = None):
         if database is None:
