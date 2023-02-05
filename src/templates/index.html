@@ -1,31 +1,39 @@
-<title>Home</title>
-<h1>Home page</h1>
-<b>Weclome!</b>
-<p>{{ message }}</p>
-{% if session.register %}
-<b>Please register.</b>
-<form action="/register" method="POST">
-<p>Username:<br>
-<input type="text" name="username"></p>
-<p>Password:<br>
-<input type="password" name="password"></p>
-<input type="submit" value="Register">
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Home</title>
+    </head>
+    <body>
+        <h1>Home page</h1>
+        <b>Weclome!</b>
+        <p>{{ message }}</p>
+        {% if session.register %}
+            <b>Please register.</b>
+            <form action="/register" method="POST">
+                <p>Username:<br>
+                <input type="text" name="username"></p>
+                <p>Password:<br>
+                <input type="password" name="password"></p>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="submit" value="Register">
 
-</form>
-<p>Already have an account? <a href="/">Login</a></p>
-{% elif session.username %}
-<p>You are signed in as {{ session.username }}</p>
-<a href="/editor">Editor</a><br>
-<a href="/logout">Logout</a>
-{% else %}
-<b>Please login.</b>
-<form action="/login" method="POST">
-<p>Username:<br>
-<input type="text" name="username"></p>
-<p>Password:<br>
-<input type="password" name="password"></p>
-<input type="submit" value="Login">
-
-</form>
-<p>Don't have an account? <a href="/register">Register</a></p>
-{% endif %}
+            </form>
+            <p>Already have an account? <a href="/">Login</a></p>
+        {% elif session.username %}
+            <p>You are signed in as {{ session.username }}</p>
+            <a href="/editor">Editor</a><br>
+            <a href="/logout">Logout</a>
+        {% else %}
+            <b>Please login.</b>
+            <form action="/login" method="POST">
+                <p>Username:<br>
+                <input type="text" name="username"></p>
+                <p>Password:<br>
+                <input type="password" name="password"></p>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="submit" value="Login">
+            </form>
+            <p>Don't have an account? <a href="/register">Register</a></p>
+        {% endif %}
+    </body>
+</html>

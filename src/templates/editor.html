@@ -1,44 +1,47 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Editor</title>
-    <style>
-        #pixelCanvas {
-            width: 512px;
-            height: 512px;
-            image-rendering: pixelated;
-        }
-    </style>
-</head>
-<body>
-    <div class="slidecontainer">
-        <input type="range" min="0" max="255" value="0" class="slider" id="red_slider">
-        <p>Red: <span id="red">255</span></p><br>
-        <input type="range" min="0" max="255" value="0" class="slider" id="green_slider">
-        <p>Green: <span id="green">255</span></p><br>
-        <input type="range" min="0" max="255" value="0" class="slider" id="blue_slider">
-        <p>Blue: <span id="blue">255</span></p>
-    </div>
+    <head>
+        <title>Editor</title>
+        <style>
+            #pixelCanvas {
+                width: 512px;
+                height: 512px;
+                image-rendering: pixelated;
+            }
+        </style>
+        <script type="text/javascript">let csrf_token = "{{ csrf_token() }}";</script>
+    </head>
+    <body>
+        <div class="slidecontainer">
+            <input type="range" min="0" max="255" value="0" class="slider" id="red_slider">
+            <p>Red: <span id="red">255</span></p><br>
+            <input type="range" min="0" max="255" value="0" class="slider" id="green_slider">
+            <p>Green: <span id="green">255</span></p><br>
+            <input type="range" min="0" max="255" value="0" class="slider" id="blue_slider">
+            <p>Blue: <span id="blue">255</span></p>
+        </div>
 
-    <canvas id="colorPicker" width="32" height="32"></canvas><br>
+        <canvas id="colorPicker" width="32" height="32"></canvas><br>
 
-    <canvas id="pixelCanvas" width="32" height="32"
-    style="border:1px solid #c3c3c3;">
-    Your browser does not support the canvas element.
-    </canvas>
-    
-    <script type="text/javascript" src="{{url_for('static', filename='editor.js')}}"></script>
-    <script type="text/javascript" src="{{url_for('static', filename='progressive_draw.js')}}"></script>
-    {% if actions %}
-    <script type="text/javascript">progressive_draw({{actions|tojson}});</script>
-    {% else %}
-    <script type="text/javascript">setup();</script>
-    {% endif %}
-    <form action="/editor/clear" method="POST">
-        <input type="submit" value="Clear">  
-    </form>
-    <form action="/editor/save_to_profile" method="POST">
-        <input type="submit" value="Save to profile">  
-    </form>
-</body>
+        <canvas id="pixelCanvas" width="32" height="32" style="border:1px solid #c3c3c3;">
+            Your browser does not support the canvas element.
+        </canvas>
+        
+        <script type="text/javascript" src="{{url_for('static', filename='editor.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='progressive_draw.js')}}"></script>
+        
+        {% if actions %}
+            <script type="text/javascript">progressive_draw({{actions|tojson}});</script>
+        {% else %}
+            <script type="text/javascript">setup();</script>
+        {% endif %}
+            <form action="/editor/clear" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="submit" value="Clear">  
+            </form>
+            <form action="/editor/save_to_profile" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="submit" value="Save to profile">  
+            </form>
+    </body>
 </html>

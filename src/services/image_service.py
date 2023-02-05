@@ -1,9 +1,14 @@
 from flask_sqlalchemy import SQLAlchemy
 
+
 class ImageService:
-    def __init__(self, db: SQLAlchemy):
-        self._db = db
-    
+    def __init__(self, database = None):
+        if database is None:
+            from src.db import db
+            self._db = db
+        else:
+            self._db = database
+
     def clear_image(self, image_id):
         self._db.session.execute(
             """
@@ -14,7 +19,7 @@ class ImageService:
             }
         )
         self._db.session.commit()
-    
+
     def _convert_to_image(self, user_id):
         distinct_actions = self._db.session.execute(
             """
@@ -22,7 +27,7 @@ class ImageService:
             FROM editors
             WHERE (order_number, row_number, col_number) in (
                 SELECT MAX(order_number), row_number, col_number
-                FROM editors 
+                FROM editors
                 WHERE user_id=:user_id
                 GROUP BY row_number, col_number
             )
@@ -45,7 +50,7 @@ class ImageService:
             image_id = image_id[0]+1
         else:
             image_id = 0
-        
+
         last_order_number = 0
         new_order_number = 0
         for pixel in image:
@@ -122,6 +127,4 @@ class ImageService:
         ).fetchone()
         if user_id:
             return user_id[0]
-        else:
-            return None
-    
+        return None

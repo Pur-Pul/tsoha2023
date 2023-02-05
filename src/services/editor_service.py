@@ -1,10 +1,15 @@
 from flask_sqlalchemy import SQLAlchemy
 
+
 class EditorService:
-    def __init__(self, db : SQLAlchemy):
-        self._db = db
+    def __init__(self, database = None):
+        if database is None:
+            from src.db import db
+            self._db = db
+        else:
+            self._db = database
         self._action_counter = 0
-    
+
     def _add_pixel(self, row : int, column : int, color : str, user_id : int):
         self._db.session.execute(
             """INSERT INTO editors (
@@ -33,7 +38,7 @@ class EditorService:
         result = self._db.session.execute(
             """
             SELECT order_number
-            FROM editors 
+            FROM editors
             WHERE user_id=:user_id
             ORDER BY order_number DESC
             """,{
@@ -44,12 +49,12 @@ class EditorService:
             self._action_counter = result[0]+1
         for pixel in pixels:
             self._add_pixel(*pixel, color, user_id)
-    
+
     def get_actions(self, user_id) -> list:
         actions = self._db.session.execute(
             """
             SELECT order_number, row_number, col_number, color
-            FROM editors 
+            FROM editors
             WHERE user_id=:user_id
             ORDER BY order_number
             """,{

@@ -1,46 +1,51 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>{{username}}'s profile</title>
-<h1>{{username}}'s images</h1>
-<style>
-    #pixelCanvas {
-        width: 512px;
-        height: 512px;
-        image-rendering: pixelated;
-    }
-</style>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-</head>
-<body>
-<script type="text/javascript" src="{{url_for('static', filename='progressive_draw.js')}}"></script>
-
-{% for image in images %}
-<canvas data-drawn="false" id="pixelCanvas" width="32" height="32"
-style="border:1px solid #c3c3c3;">
-Your browser does not support the canvas element.
-</canvas><p>
-<script type="text/javascript">
-function make_post(image_id) {
-    title = window.prompt("Please enter title of post.","{{username}}'s new post");
-    if (title == null) {
-        return;
-    }
-    fetch("/make-post", {
-        method: "POST",
-        credentials: "include",
-        body: JSON.stringify({'id': image_id, 'title': title}),
-        cache: "no-cache",
-        headers: new Headers({
-            "content-type": "application/json"
-        })
-    })
-}
-</script>
-<input id="make_post" type="button" value="Make post" onclick="make_post({{ images[image] }}.id);" />
-</p>
-{% endfor %}
-<script type="text/javascript">var ctx; function setup(){} draw_images({{ images|tojson }});</script>
-
-</body>
+    <head>
+        <title>{{username}}'s profile</title>
+        <h1>{{username}}'s images</h1>
+        <style>
+            #pixelCanvas {
+                width: 512px;
+                height: 512px;
+                image-rendering: pixelated;
+            }
+        </style>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript">let csrf_token = "{{ csrf_token() }}";</script>
+    </head>
+    <body>
+        <script type="text/javascript" src="{{url_for('static', filename='progressive_draw.js')}}"></script>
+        {% for image in images %}
+            <canvas data-drawn="false" id="pixelCanvas" width="32" height="32" style="border:1px solid #c3c3c3;">
+                Your browser does not support the canvas element.
+            </canvas><p>
+                <script type="text/javascript">
+                    function make_post(image_id) {
+                        title = window.prompt("Please enter title of post.","{{username}}'s new post");
+                        if (title == null) {
+                            return;
+                        }
+                        fetch("/make-post", {
+                            method: "POST",
+                            credentials: "include",
+                            body: JSON.stringify({'id': image_id, 'title': title}),
+                            cache: "no-cache",
+                            headers: new Headers({
+                                "content-type": "application/json",
+                                "X-CSRFToken": csrf_token
+                            })
+                        })
+                        .then(function (response) {
+                            if (response.status != 200) {
+                                invoke_error(`Error: ${response.status}`);
+                                return;
+                            }
+                        })
+                    }
+                </script>
+                <input id="make_post" type="button" value="Make post" onclick="make_post({{ images[image] }}.id);" />
+            </p>
+        {% endfor %}
+        <script type="text/javascript">var ctx; function setup(){} draw_images({{ images|tojson }});</script>
+    </body>
 </html>

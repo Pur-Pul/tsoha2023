@@ -67,3 +67,8 @@ function wipe(context) {
     context.fillStyle = "white";
     context.fillRect(0, 0, 32, 32);
 }
+
+function invoke_error(error) {
+    console.log(error);
+    window.alert(`An error occured!\n${error}`);
+}

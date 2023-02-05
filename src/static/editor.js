@@ -34,7 +34,6 @@ let coordinates = { x: 0, y: 0 };
 let scale = canvas.clientWidth / 32;
 let CANVAS_WIDTH = 32;
 let CANVAS_HEIGHT = 32;
-let csrf_token = "none";
 ctx.fillStyle = "white";
 ctx.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
 
@@ -95,6 +94,7 @@ function reposition(event) {
 }
 
 function stop() {
+    console.log(csrf_token)
     document.removeEventListener('mousemove', draw);
     if (pointer == 0) {
         return
@@ -105,8 +105,15 @@ function stop() {
         body: JSON.stringify(stroke),
         cache: "no-cache",
         headers: new Headers({
-            "content-type": "application/json"
+            "content-type": "application/json",
+            "X-CSRFToken": csrf_token
         })
+    })
+    .then(function (response) {
+        if (response.status != 200) {
+            invoke_error(`Error: ${response.status}`);
+            return;
+        }
     })
     pointer = 0
     for (i in stroke) {
@@ -122,11 +129,4 @@ function draw(event) {
     ctx.fillStyle = RGBtoHex();
     ctx.fillRect(coordinates.x, coordinates.y, 1, 1);
     add_to_stroke();
-}
-
-
-
-function setup_csrf() {
-    console.log("hello");
-    csrf_token = "new";
 }

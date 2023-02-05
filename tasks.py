@@ -8,3 +8,8 @@ def start(ctx):
 @task
 def lint(ctx):
     ctx.run("pylint src")
+
+@task
+def test(ctx):
+    ctx.run("coverage run -m pytest src")
+    ctx.run("coverage report")

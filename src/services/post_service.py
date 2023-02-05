@@ -1,9 +1,14 @@
 from flask_sqlalchemy import SQLAlchemy
 
+
 class PostService:
-    def __init__(self, db : SQLAlchemy):
-        self._db = db
-    
+    def __init__(self, database = None):
+        if database is None:
+            from src.db import db
+            self._db = db
+        else:
+            self._db = database
+
     def make_post(self, image_id, title):
         self._db.session.execute(
             """
@@ -20,15 +25,16 @@ class PostService:
                 "title":title
             }
         )
-    
+
     def get_posts(self):
         posts = self._db.session.execute(
             """
             SELECT id, image_id, title
             FROM posts
-            """.fetchall()
-        )
-    
+            """
+        ).fetchall()
+        return posts
+
     def clear_post(self, post_id):
         self._db.session.execute(
             """
