@@ -1,13 +1,9 @@
-from os import getenv
 import json
 from flask import render_template, redirect, request, session, jsonify, make_response
-from flask_sqlalchemy import SQLAlchemy
-from flask_wtf.csrf import CSRFProtect, CSRFError
+from flask_wtf.csrf import CSRFError
 from werkzeug.security import generate_password_hash
 from src.services import UserService, EditorService, ImageService, PostService
 from src.app import app
-
-
 
 user_service = UserService()
 editor_service = EditorService()
@@ -86,8 +82,10 @@ def save_to_profile():
 @app.route("/profile/<username>", methods=["GET"])
 def profile(username):
     images={}
-    for image_id in image_service.get_image_ids(user_service.get_id(username)):
-        images[image_id] = json.dumps(image_service.get_image(image_id))
+    if username==session["username"]:
+        for image_id in image_service.get_image_ids(user_service.get_id(username)):
+            images[image_id] = json.dumps(image_service.get_image(image_id))
+
     return render_template("profile.html", images=images, username=username)
 
 @app.route("/make-post", methods=["POST"])

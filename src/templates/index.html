@@ -22,6 +22,7 @@
         {% elif session.username %}
             <p>You are signed in as {{ session.username }}</p>
             <a href="/editor">Editor</a><br>
+            <a href="/profile/{{session['username']}}">Your profile</a><br>
             <a href="/logout">Logout</a>
         {% else %}
             <b>Please login.</b>

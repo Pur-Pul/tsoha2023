@@ -1,6 +1,3 @@
-from flask_sqlalchemy import SQLAlchemy
-
-
 class ImageService:
     def __init__(self, database = None):
         if database is None:

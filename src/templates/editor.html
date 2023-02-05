@@ -43,5 +43,7 @@
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <input type="submit" value="Save to profile">  
             </form>
+            <a href="/">Main page</a><br>
+            <a href="/profile/{{session['username']}}">Your profile</a><br>
     </body>
 </html>

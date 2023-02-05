@@ -4,3 +4,6 @@ disable=missing-module-docstring,
         missing-function-docstring,
         import-error,
         cyclic-import
+
+[master]
+ignore-patterns=test_(.)*\.py, __init__.py
