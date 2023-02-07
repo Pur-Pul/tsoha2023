@@ -89,8 +89,8 @@ function start(event) {
 }
 
 function reposition(event) {
-    coordinates.x = Math.floor((event.clientX - canvas.offsetLeft)/scale);
-    coordinates.y = Math.floor((event.clientY - canvas.offsetTop)/scale);
+    coordinates.x = Math.floor((event.pageX - canvas.offsetLeft)/scale);
+    coordinates.y = Math.floor((event.pageY - canvas.offsetTop)/scale);
 }
 
 function stop() {
