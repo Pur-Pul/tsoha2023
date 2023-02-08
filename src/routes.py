@@ -83,9 +83,7 @@ def save_to_profile():
 def profile(username):
     images={}
     if username==session["username"]:
-        for image_id in image_service.get_image_ids(user_service.get_id(username)):
-            images[image_id] = json.dumps(image_service.get_image(image_id))
-
+        images = image_service.get_user_images(user_service.get_id(username))
     return render_template("profile.html", images=images, username=username)
 
 @app.route("/make-post", methods=["POST"])

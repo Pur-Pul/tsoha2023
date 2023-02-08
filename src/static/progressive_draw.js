@@ -3,9 +3,6 @@ var canvases = undefined;
 function progressive_draw(image) {
     last = false;
     for (i in image) {
-        if (i == "id") {
-            continue;
-        }
         if (i == Object.keys(image).length - 1) {
             last = true;
         }
@@ -13,13 +10,13 @@ function progressive_draw(image) {
         wipe(ctx);
         setTimeout(
             draw_pixel.bind(null, pixel, ctx, last),
-            pixel[0]*100);
+            pixel.order_number*100);
     }
 }
 
 function draw_pixel(pixel, context, last) {
-    context.fillStyle = pixel[3];
-    context.fillRect(pixel[1], pixel[2], 1, 1);
+    context.fillStyle = pixel.color;
+    context.fillRect(pixel.row_number, pixel.col_number, 1, 1);
     if (last) {
         setup();
     }
@@ -41,9 +38,8 @@ function draw_if_visible(event) {
     canvases = event.currentTarget.canvases;
 
     for (i in images) {
-        image = JSON.parse(images[i]);
-        canvas = canvases[i];
-    
+        image = images[i];
+        canvas = canvases[i-1];
         var top = $(window).scrollTop();
         var bottom = top + $(window).height();
         var canvas_top = $(canvas).offset().top;

@@ -1,3 +1,4 @@
+import json
 class ImageService:
     def __init__(self, database = None):
         if database is None:
@@ -33,70 +34,52 @@ class ImageService:
                 "user_id":user_id,
             }
         ).fetchall()
-        return distinct_actions
+
+        actions = []
+        last_order_number = 0
+        new_order_number = 0
+        for action in distinct_actions:
+            actions.append(
+                action._asdict()
+            )
+            if last_order_number < action.order_number:
+                new_order_number+=1
+                last_order_number = action.order_number
+            actions[-1]["order_number"] = new_order_number
+            
+
+        return json.dumps(actions, indent=2)
 
     def save_as_image(self, user_id):
         image = self._convert_to_image(user_id)
-        image_id = self._db.session.execute(
+    
+        self._db.session.execute(
             """
-            SELECT max(image_id)
-            FROM images
-            """
-        ).fetchone()
-        if image_id[0] is not None:
-            image_id = image_id[0]+1
-        else:
-            image_id = 0
-
-        last_order_number = 0
-        new_order_number = 0
-        for pixel in image:
-            if last_order_number < pixel.order_number:
-                new_order_number+=1
-                last_order_number+=1
-            self._db.session.execute(
-                """
-                INSERT INTO images (
-                    image_id,
-                    user_id,
-                    row_number,
-                    col_number,
-                    color,
-                    order_number
-                ) VALUES (
-                    :image_id,
-                    :user_id,
-                    :row_number,
-                    :col_number,
-                    :color,
-                    :order_number
-                )
-                """, {
-                    "image_id":image_id,
-                    "user_id":user_id,
-                    "row_number":pixel.row_number,
-                    "col_number":pixel.col_number,
-                    "color":pixel.color,
-                    "order_number":new_order_number
-                }
+            INSERT INTO images (
+                user_id,
+                data
+            ) VALUES (
+                :user_id,
+                :data
             )
+            """, {
+                "user_id":user_id,
+                "data":image
+            }
+        )
         self._db.session.commit()
 
     def get_image(self, image_id):
-        image = self._db.session.execute(
+        image_dict = self._db.session.execute(
             """
-            SELECT order_number, row_number, col_number, color
+            SELECT image_id, data
             FROM images
             WHERE image_id=:image_id
-            ORDER BY order_number
             """, {
                 "image_id": image_id
             }
-        ).fetchall()
-        image_dict = {"id" : image_id}
-        for i, row in enumerate(image):
-            image_dict[i] = tuple(row)
-        return image_dict
+        ).fetchone()
+        return image_dict._asdict()
 
     def get_image_ids(self, user_id):
         image_ids = self._db.session.execute(
@@ -125,3 +108,19 @@ class ImageService:
         if user_id:
             return user_id[0]
         return None
+
+    def get_user_images(self, user_id):
+        result = self._db.session.execute(
+            """
+            SELECT image_id, data
+            FROM images
+            WHERE user_id=:user_id
+            ORDER BY image_id
+            """, {
+                "user_id": user_id
+            }
+        ).fetchall()
+        images = {}
+        for image in result:
+            images[image.image_id] = image.data
+        return images

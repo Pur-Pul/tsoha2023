@@ -58,8 +58,8 @@ class EditorService:
                 "user_id":user_id,
             }
         ).fetchall()
-        actions = [tuple(row) for row in actions]
-        return list(actions)
+        actions = [action._asdict() for action in actions]
+        return actions
 
     def clear_actions(self, user_id):
         self._db.session.execute(
