@@ -79,6 +79,10 @@ def save_to_profile():
     image_service.save_as_image(user_service.get_id(session["username"]))
     return redirect("/editor")
 
+@app.route("/profile", methods=["GET"])
+def profile_redirect():
+    return redirect("/profile/"+session["username"])
+
 @app.route("/profile/<username>", methods=["GET"])
 def profile(username):
     images={}
@@ -91,7 +95,22 @@ def make_post():
     owner_id = image_service.get_image_owner_id(request.get_json()["id"])
     if not validate_user_id(owner_id):
         return "Invalid post request"
+    
     post_service.make_post(request.get_json()["id"], request.get_json()["title"])
 
     res = make_response(jsonify({"message": "post made"}), 200)
     return res
+
+@app.route("/posts", methods=["GET"])
+def posts_redirect():
+    return redirect("/posts/"+"new")
+
+@app.route("/posts/<option>", methods=["GET"])
+def posts(option):
+    if not option:
+        option = "new"
+    posts = post_service.get_posts(option)
+    images = []
+    for post in posts:
+        images.append(image_service.get_image(post.image_id))
+    return render_template("posts.html", posts=posts, images=images)

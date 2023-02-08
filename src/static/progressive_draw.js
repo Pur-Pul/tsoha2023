@@ -23,6 +23,7 @@ function draw_pixel(pixel, context, last) {
 }
 
 function draw_images(images) {
+    console.log(images);
     canvases = document.querySelectorAll("[id=pixelCanvas]");
     canvases.forEach(canvas => {
         canvas.setAttribute('data-drawn', false);
@@ -36,10 +37,14 @@ function draw_images(images) {
 function draw_if_visible(event) {
     images = event.currentTarget.post_images;
     canvases = event.currentTarget.canvases;
-
+    canvas_i = 0
     for (i in images) {
-        image = images[i];
-        canvas = canvases[i-1];
+        if (images[i].data == undefined) {
+            image = images[i];
+        } else {
+            image = images[i].data;
+        }
+        canvas = canvases[canvas_i];
         var top = $(window).scrollTop();
         var bottom = top + $(window).height();
         var canvas_top = $(canvas).offset().top;
@@ -56,6 +61,7 @@ function draw_if_visible(event) {
             wipe(ctx);
             ctx.fillStyle = prev;
         }
+        canvas_i++;
     }
 }
 

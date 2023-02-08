@@ -45,7 +45,7 @@
                         })
                     }
                 </script>
-                <input id="make_post" type="button" value="Make post" onclick="make_post({{ images[image] }}.id);" />
+                <input id="make_post" type="button" value="Make post" onclick="make_post({{ image }});" />
             </p>
         {% endfor %}
         <script type="text/javascript">var ctx; function setup(){} draw_images({{ images|tojson }});</script>

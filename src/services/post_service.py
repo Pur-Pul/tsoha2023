@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 class PostService:
     def __init__(self, database = None):
         if database is None:
@@ -22,14 +23,25 @@ class PostService:
                 "title":title
             }
         )
+        self._db.session.commit()
 
-    def get_posts(self):
-        posts = self._db.session.execute(
-            """
-            SELECT id, image_id, title
+    def get_posts(self, option):
+        sql = {
+            "new" : """
+            SELECT id, image_id, title, time
             FROM posts
+            ORDER BY time DESC
+            """,
+            "old" : """
+            SELECT id, image_id, title, time
+            FROM posts
+            ORDER BY time
+            """,
+            "popular" : """
+            
             """
-        ).fetchall()
+        }
+        posts = self._db.session.execute(sql[option]).fetchall()
         return posts
 
     def clear_post(self, post_id):
