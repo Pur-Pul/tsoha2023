@@ -2,13 +2,14 @@ import json
 from flask import render_template, redirect, request, session, jsonify, make_response
 from flask_wtf.csrf import CSRFError
 from werkzeug.security import generate_password_hash
-from src.services import UserService, EditorService, ImageService, PostService
+from src.services import UserService, EditorService, ImageService, PostService, ReplyService
 from src.app import app
 
 user_service = UserService()
 editor_service = EditorService()
 image_service = ImageService()
 post_service = PostService()
+reply_service = ReplyService()
 
 def validate_user_id(user_id):
     return user_service.get_id(session["username"]) == user_id
@@ -96,7 +97,8 @@ def make_post():
     if not validate_user_id(owner_id):
         return "Invalid post request"
     
-    post_service.make_post(request.get_json()["id"], request.get_json()["title"])
+    post_id = post_service.make_post(request.get_json()["id"], request.get_json()["title"])
+    reply_service.create_reply_section(post_id)
 
     res = make_response(jsonify({"message": "post made"}), 200)
     return res
@@ -114,3 +116,17 @@ def posts(option):
     for post in posts:
         images.append(image_service.get_image(post.image_id))
     return render_template("posts.html", posts=posts, images=images)
+
+@app.route("/post/<int:post_id>", methods=["GET"])
+def post(post_id):
+    post = post_service.get_post(post_id)
+    if post is None:
+        return make_response("404: Post does not exist", 404)
+    image = image_service.get_image(post.image_id)
+    replies = reply_service.get_post_replies(post_id)
+    return render_template("post.html", post=post, image=image, replies=replies)
+
+@app.route("/post/<int:post_id>/reply", methods=["POST"])
+def make_post_reply(post_id):
+    reply_service.create_post_reply(post_id, user_service.get_id(session["username"]), request.get_json()["content"])
+    return redirect("/post/"+str(post_id))

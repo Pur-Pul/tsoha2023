@@ -8,7 +8,7 @@ class PostService:
             self._db = database
 
     def make_post(self, image_id, title):
-        self._db.session.execute(
+        id = self._db.session.execute(
             """
             INSERT INTO posts (
                 image_id,
@@ -18,12 +18,13 @@ class PostService:
                 :image_id,
                 :title
             )
+            RETURNING id
             """, {
                 "image_id":image_id,
                 "title":title
             }
-        )
-        self._db.session.commit()
+        ).fetchone()[0]
+        return id
 
     def get_posts(self, option):
         sql = {
@@ -54,3 +55,13 @@ class PostService:
             }
         )
         self._db.session.commit()
+    
+    def get_post(self, post_id):
+        return self._db.session.execute(
+            """
+            SELECT * FROM posts
+            WHERE id=:post_id
+            """, {
+                "post_id":post_id
+            }
+        ).fetchone()

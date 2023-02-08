@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            #pixelCanvas {
+                width: 512px;
+                height: 512px;
+                image-rendering: pixelated;
+            }
+        </style>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript">let csrf_token = "{{ csrf_token() }}";</script>
+    </head>
+    <body>
+        <script type="text/javascript" src="{{url_for('static', filename='progressive_draw.js')}}"></script>
+        <h1>{{ post.title }}</h1>
+        <canvas data-drawn="false" id="pixelCanvas" width="32" height="32" style="border:1px solid #c3c3c3;">
+            Your browser does not support the canvas element.
+        </canvas><p>
+        <script type="text/javascript">var ctx; function setup(){} draw_images([{{ image|tojson }}]);</script>
+        <script type="text/javascript">
+            function reply(post_id) {
+                
+                content = window.prompt("Please enter your reply.","");
+                if (content == null) {
+                    return;
+                }
+                fetch("/post/"+post_id+"/reply", {
+                    method: "POST",
+                    credentials: "include",
+                    body: JSON.stringify({'id': post_id, 'content': content}),
+                    cache: "no-cache",
+                    headers: new Headers({
+                        "content-type": "application/json",
+                        "X-CSRFToken": csrf_token
+                    })
+                })
+                .then(function (response) {
+                    if (response.status != 200) {
+                        invoke_error(`Error: ${response.status}`);
+                        return;
+                    } else {
+                        window.location.reload();
+                    }
+                })
+            }
+        </script>
+        <p>{{post.time}}</p>
+        <input id="reply" type="button" value="Reply" onclick="reply({{ post.id }});" />
+        {% for reply in replies %}
+        <p>{{reply.content}} {{reply.time}}</p>
+        {% endfor %}
+    </body>
+
