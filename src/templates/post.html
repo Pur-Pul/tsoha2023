@@ -10,6 +10,7 @@
         </style>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script type="text/javascript">let csrf_token = "{{ csrf_token() }}";</script>
+        <script type="text/javascript" src="{{url_for('static', filename='timestamp.js')}}"></script>
     </head>
     <body>
         <script type="text/javascript" src="{{url_for('static', filename='progressive_draw.js')}}"></script>
@@ -17,10 +18,18 @@
         <canvas data-drawn="false" id="pixelCanvas" width="32" height="32" style="border:1px solid #c3c3c3;">
             Your browser does not support the canvas element.
         </canvas><p>
-        <script type="text/javascript">var ctx; function setup(){} draw_images([{{ image|tojson }}]);</script>
         <script type="text/javascript">
+            var ctx;
+            function setup(){}
+            draw_images([{{ image|tojson }}]);
+            
+        </script>
+        <p id="post_time"></p>
+        <script type="text/javascript">
+            var post_time = document.getElementById('post_time');
+            post_time.innerHTML = "post by " + "anon" + " "+ simplify_timestamp({{post.time|tojson}});
+            document.body.appendChild(post_time);
             function reply(post_id) {
-                
                 content = window.prompt("Please enter your reply.","");
                 if (content == null) {
                     return;
@@ -45,10 +54,19 @@
                 })
             }
         </script>
-        <p>{{post.time}}</p>
         <input id="reply" type="button" value="Reply" onclick="reply({{ post.id }});" />
+        <script type="text/javascript">
+            const current_datetime = new Date();
+            function create_reply(content, time, username) {
+                var paragraph = document.createElement('p');
+                paragraph.innerHTML = content + "<br/>"+ username +" replied " + simplify_timestamp(time);
+                document.body.appendChild(paragraph);
+            }
+        </script>
+        
         {% for reply in replies %}
-        <p>{{reply.content}} {{reply.time}}</p>
+        <script type="text/javascript">
+            create_reply("{{reply.content}}", {{reply.time|tojson}}, "anon");
+        </script>
         {% endfor %}
     </body>
-
