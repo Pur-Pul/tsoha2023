@@ -1,8 +1,7 @@
-<!DOCTYPE html>
+{% extends "layout.html" %}
+{% block body %}
 <html>
     <head>
-        <a href="/">Main page</a><br>
-        <a href="/editor">Editor</a><br>
         <title>{{username}}'s profile</title>
         <h1>{{username}}'s images</h1>
         <style>
@@ -51,3 +50,4 @@
         <script type="text/javascript">var ctx; function setup(){} draw_images({{ images|tojson }});</script>
     </body>
 </html>
+{% endblock %}

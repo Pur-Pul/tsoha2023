@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <style>
+            body {
+                background-color: antiquewhite;
+            }
+            #nav_bar_ul {
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+                background-color: aquamarine;
+            }
+            #nav_bar_li {
+                float: left;
+            }
+            #nav_bar_a, .dropbtn{
+                display: block;
+                text-align: center;
+                padding: 8px;
+                text-decoration: none;
+            }
+            .dropbtn {
+                color: black;
+            }
+            #nav_bar_a:not(.active) {
+                color:black;
+            }
+            #nav_bar_a:hover:not(.active), .dropdown:hover .dropbtn, .dropdown-content a:hover {
+                background-color: rgb(97, 225, 182);
+                color: black;
+            }
+            .active {
+                background-color:black;
+                color: aquamarine;
+            }
+            .dropdown {
+                float: left;
+                overflow: hidden;
+            }
+            .dropdown-content {
+                display: none;
+                position: absolute;
+                background-color: aquamarine;
+                min-width: 160px;
+                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                z-index: 1;
+            }
+            .dropdown-content a {
+                float: none;
+                color:black;
+                padding: 12px 16px;
+                text-decoration: none;
+                display: block;
+                text-align: left;
+            }
+            .dropdown:hover .dropdown-content{
+                display: block;
+            }
+            
+        </style>
+    </head>
+    <body>
+        <ul id="nav_bar_ul">
+            <li id="nav_bar_li"><a id="nav_bar_a" href="/">Main page</a></li>
+            <li id="nav_bar_li"><a id="nav_bar_a" href="/editor">Editor</a></li>
+            <li id="nav_bar_li"><a id="nav_bar_a" href="/profile/{{session['username']}}">Your profile</a></li>
+            <div class="dropdown">
+                <a class="dropbtn">Posts</a>
+                <div class="dropdown-content">
+                    <a id="content" href="/posts/new">New</a>
+                    <a id="content" href="/posts/new">Old</a>
+                    <a id="content" href="/posts/new">Popular</a>
+                </div>
+            </div> 
+        </ul>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $("[href]").each(function() {
+                    if (this.href == window.location.href && this.id!="content") {
+                        $(this).addClass("active");
+                    } else if (this.href == window.location.href && this.id=="content") {
+                        $(this).parent().parent().children(".dropbtn").addClass("active")
+                    }
+                });
+            });
+        </script>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+    </body>
+</html>
+{% block body %}{% endblock %}

@@ -1,8 +1,8 @@
 import json
-from flask import render_template, redirect, request, session, jsonify, make_response
+from flask import render_template, redirect, request, session, jsonify, make_response, flash
 from flask_wtf.csrf import CSRFError
 from werkzeug.security import generate_password_hash
-from src.services import UserService, EditorService, ImageService, PostService, ReplyService
+from src.services import UserService, EditorService, ImageService, PostService, ReplyService, InvalidUserNameException
 from src.app import app
 
 user_service = UserService()
@@ -42,8 +42,13 @@ def register():
     if request.method == "POST":
         username = request.form["username"]
         hash_value = generate_password_hash(request.form["password"])
-        user_service.register(username, hash_value)
-        return redirect("/")
+        try:
+            user_service.register(username, hash_value)
+            return redirect("/")
+        except InvalidUserNameException as error:
+            flash(str(error))
+            return render_template("index.html")
+        
     session["register"] = True
     return render_template("index.html")
 
