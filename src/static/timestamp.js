@@ -16,10 +16,10 @@ function simplify_timestamp(timestamp) {
     let old_date = new Date(timestamp+"+02:00");
     const current_date = new Date();
     times = {
-    "year" : Math.round(current_date.getTime() / year) - Math.round(old_date.getTime() / year),
-    "day" : Math.round(current_date.getTime() / day) - Math.round(old_date.getTime() / day),
-    "hour" : Math.round(current_date.getTime() / hour) - Math.round(old_date.getTime() / hour),
-    "minute" : Math.round(current_date.getTime() / minute) - Math.round(old_date.getTime() / minute),
+    "year" : Math.round((current_date.getTime() - old_date.getTime()) / year),
+    "day" : Math.round((current_date.getTime() - old_date.getTime()) / day),
+    "hour" : Math.round((current_date.getTime() - old_date.getTime()) / hour),
+    "minute" : Math.round((current_date.getTime() - old_date.getTime()) / minute)
     };
     if (times['year']) {
         return constuct_text('year', times);

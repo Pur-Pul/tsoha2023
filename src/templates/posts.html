@@ -22,7 +22,12 @@
                 Your browser does not support the canvas element.
             </canvas><p>
             
-            <p>{{post.time}} Likes: {{post.votes}}</p>
+            <label id="{{post.id}}_time"> </label>
+            <label> Score: {{post.votes}}</label>
+            <script type="text/javascript">
+                var post_time = document.getElementById("{{post.id}}_time");
+                post_time.innerHTML = "posted " + simplify_timestamp({{post.time|tojson}});
+            </script>
             <a href="/post/{{post.id}}">Open post</a><br>
         {% endfor %}
         <script type="text/javascript">var ctx; function setup(){} draw_images({{ images|tojson }});</script>

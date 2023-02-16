@@ -133,8 +133,10 @@ class ReplyService:
     def get_post_replies(self, post_id):
         replies = self._db.session.execute(
             """
-            SELECT * 
+            SELECT replies.*, users.username 
             FROM replies
+            LEFT JOIN users
+            ON replies.user_id = users.id
             WHERE reply_id=(SELECT reply_id FROM reply_section WHERE post_id=:post_id)
             """, {
                 "post_id":post_id

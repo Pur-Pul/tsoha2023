@@ -1,8 +1,10 @@
-function vote(post_id) {
+function vote(post_id, like) {
+    if (like) score = 1;
+    else score = -1;
     fetch("/post/"+post_id+"/vote", {
         method: "POST",
         credentials: "include",
-        body: JSON.stringify({'id': post_id, 'value': 1}),
+        body: JSON.stringify({'id': post_id, 'value': score}),
         cache: "no-cache",
         headers: new Headers({
             "content-type": "application/json",

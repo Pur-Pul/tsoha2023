@@ -9,21 +9,78 @@
                 height: 512px;
                 image-rendering: pixelated;
             }
+            #red_slider::-webkit-slider-thumb {
+                background: red;
+            }
+            #green_slider::-webkit-slider-thumb {
+                background: green;
+            }
+            #blue_slider::-webkit-slider-thumb {
+                background: blue;
+            }
+            .color_slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                width: 20px;
+                height: 20px;
+                appearance: none;
+                
+                cursor: pointer;
+                border-radius: 50%;
+            }
+            .color_slider {
+                float: left;
+                -webkit-appearance: none;
+                appearance: none;
+                width: 50%;
+                height: 10px;
+                border-radius: 25px;
+                margin-right: 1em;
+                opacity: 0.7;
+                -webkit-transition: .2s;
+                transition: opacity .2s;
+            }
+            .color_slider:hover {
+                opacity: 1;
+            }
+            #colorPicker {
+                float: left;
+            }
+            form {
+                float: left;
+            }
+            .action_button {
+                background-color: aquamarine;
+                border-color: transparent;
+                padding: 5px 10px 5px 10px;
+                margin-right: 1em;
+                margin-left: 1em;
+            }
+            .action_button:hover {
+                background-color: #2EE59D;
+                transform: translateY(-2px);
+                transform: translate(-2px);
+                box-shadow: 2px 2px rgb(204, 193, 178);
+            }
+            #clear {
+                background-color: rgb(255, 126, 126);
+            }
+            #clear:hover {
+                background-color: rgb(244, 107, 107);
+            }
         </style>
         <script type="text/javascript">let csrf_token = "{{ csrf_token() }}";</script>
     </head>
     <body>
         <div class="slidecontainer">
-            <input type="range" min="0" max="255" value="0" class="slider" id="red_slider">
-            <p>Red: <span id="red">255</span></p><br>
-            <input type="range" min="0" max="255" value="0" class="slider" id="green_slider">
-            <p>Green: <span id="green">255</span></p><br>
-            <input type="range" min="0" max="255" value="0" class="slider" id="blue_slider">
-            <p>Blue: <span id="blue">255</span></p>
+            <input class="color_slider" type="range" min="0" max="255" value="0" class="slider" id="red_slider">
+            <p>Red: <span id="red">0</span></p>
+            <input class="color_slider" type="range" min="0" max="255" value="0" class="slider" id="green_slider">
+            <p>Green: <span id="green">0</span></p>
+            <input class="color_slider" type="range" min="0" max="255" value="0" class="slider" id="blue_slider">
+            <p>Blue: <span id="blue">0</span></p>
         </div>
 
         <canvas id="colorPicker" width="32" height="32"></canvas><br>
-
         <canvas id="pixelCanvas" width="32" height="32" style="border:1px solid #c3c3c3;">
             Your browser does not support the canvas element.
         </canvas>
@@ -38,11 +95,11 @@
         {% endif %}
             <form action="/editor/clear" method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                <input type="submit" value="Clear">  
+                <input id="clear" class="action_button" type="submit" value="Clear">  
             </form>
             <form action="/editor/save_to_profile" method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                <input type="submit" value="Save to profile">  
+                <input class="action_button" type="submit" value="Save to profile">  
             </form>
     </body>
 </html>

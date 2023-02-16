@@ -58,8 +58,18 @@ class PostService:
     def get_post(self, post_id):
         return self._db.session.execute(
             """
-            SELECT * FROM posts
-            WHERE id=:post_id
+            SELECT posts.id, posts.image_id, posts.title, posts.time, COALESCE(SUM(votes.points),0) AS votes, users.username
+            FROM posts
+            JOIN reply_section
+            ON posts.id = reply_section.post_id
+            LEFT JOIN votes
+            ON reply_section.reply_id = votes.reply_id
+            JOIN images
+            ON posts.image_id = images.image_id
+            JOIN users
+            ON images.user_id = users.id
+            WHERE posts.id=:post_id
+            GROUP BY posts.id, users.username
             """, {
                 "post_id":post_id
             }
