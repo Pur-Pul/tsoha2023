@@ -71,8 +71,8 @@
                 <a class="dropbtn">Posts</a>
                 <div class="dropdown-content">
                     <a id="content" href="/posts/new">New</a>
-                    <a id="content" href="/posts/new">Old</a>
-                    <a id="content" href="/posts/new">Popular</a>
+                    <a id="content" href="/posts/old">Old</a>
+                    <a id="content" href="/posts/popular">Popular</a>
                 </div>
             </div> 
         </ul>
@@ -87,7 +87,9 @@
                 });
             });
         </script>
-        {% with messages = get_flashed_messages() %}
+    </body>
+</html>
+{% with messages = get_flashed_messages() %}
             {% if messages %}
                 <ul>
                     {% for message in messages %}
@@ -96,6 +98,4 @@
                 </ul>
             {% endif %}
         {% endwith %}
-    </body>
-</html>
 {% block body %}{% endblock %}

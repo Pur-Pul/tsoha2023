@@ -12,6 +12,7 @@
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script type="text/javascript">let csrf_token = "{{ csrf_token() }}";</script>
         <script type="text/javascript" src="{{url_for('static', filename='timestamp.js')}}"></script>
+        <script type="text/javascript" src="{{url_for('static', filename='vote.js')}}"></script>
     </head>
     <body>
         <script type="text/javascript" src="{{url_for('static', filename='progressive_draw.js')}}"></script>
@@ -56,6 +57,7 @@
             }
         </script>
         <input id="reply" type="button" value="Reply" onclick="reply({{ post.id }});" />
+        <input id="vote" type="button" value="Like" onclick="vote({{ post.id }});" />
         <script type="text/javascript">
             const current_datetime = new Date();
             function create_reply(content, time, username) {

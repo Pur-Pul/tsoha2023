@@ -11,6 +11,9 @@ image_service = ImageService()
 post_service = PostService()
 reply_service = ReplyService()
 
+def sign(value):
+    return (value > 0) - (value < 0)
+
 def validate_user_id(user_id):
     return user_service.get_id(session["username"]) == user_id
 
@@ -30,7 +33,8 @@ def login():
     if user_service.validate_credentials(username, password):
         session["username"] = username
         return redirect("/")
-    return render_template("index.html", message = "Incorrect login credentials")
+    flash("Incorrect login credentials")
+    return render_template("index.html")
 
 @app.route("/logout")
 def logout():
@@ -65,6 +69,7 @@ def editor():
     for item in jsdata.values():
         if isinstance(item, dict):
             pixels.append((item["x"], item["y"]))
+    print(jsdata["color"])
     editor_service.color_pixels(
         pixels,
         jsdata["color"],
@@ -134,4 +139,10 @@ def post(post_id):
 @app.route("/post/<int:post_id>/reply", methods=["POST"])
 def make_post_reply(post_id):
     reply_service.create_post_reply(post_id, user_service.get_id(session["username"]), request.get_json()["content"])
+    return redirect("/post/"+str(post_id))
+
+@app.route("/post/<int:post_id>/vote", methods=["POST"])
+def make_post_vote(post_id):
+    points = sign(request.get_json()["value"])
+    reply_service.create_post_vote(post_id, user_service.get_id(session["username"]), points)
     return redirect("/post/"+str(post_id))

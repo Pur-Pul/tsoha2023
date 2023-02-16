@@ -12,4 +12,10 @@ CREATE TABLE images (image_id SERIAL PRIMARY KEY, user_id INT, data JSON);
 CREATE TABLE posts (id SERIAL PRIMARY KEY, image_id INT, title TEXT, time TIMESTAMP default CURRENT_TIMESTAMP);
 CREATE TABLE reply_section (id SERIAL PRIMARY KEY, post_id INT, reply_id INT);
 CREATE TABLE replies (id SERIAL PRIMARY KEY, reply_id INT, user_id INT, content TEXT, time TIMESTAMP default CURRENT_TIMESTAMP);
-CREATE TABLE votes (id SERIAL PRIMARY KEY, reply_id INT, user_id INT, points INT);
+CREATE TABLE votes (
+    id SERIAL PRIMARY KEY,
+    reply_id INT,
+    user_id INT,
+    points INT,
+    UNIQUE(reply_id, user_id)
+);

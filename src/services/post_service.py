@@ -27,22 +27,21 @@ class PostService:
         return id
 
     def get_posts(self, option):
-        sql = {
-            "new" : """
-            SELECT id, image_id, title, time
+        sql = """
+            SELECT posts.id, posts.image_id, posts.title, posts.time, COALESCE(SUM(votes.points),0) AS votes
             FROM posts
-            ORDER BY time DESC
-            """,
-            "old" : """
-            SELECT id, image_id, title, time
-            FROM posts
-            ORDER BY time
-            """,
-            "popular" : """
-            
+            JOIN reply_section
+            ON posts.id = reply_section.post_id
+            LEFT JOIN votes
+            ON reply_section.reply_id = votes.reply_id
+            GROUP BY posts.id 
             """
+        sort_option = {
+            "new" : "ORDER BY posts.time DESC",
+            "old" : "ORDER BY posts.time",
+            "popular" : "ORDER BY votes DESC"
         }
-        posts = self._db.session.execute(sql[option]).fetchall()
+        posts = self._db.session.execute(sql+sort_option[option]).fetchall()
         return posts
 
     def clear_post(self, post_id):

@@ -26,6 +26,7 @@ class ReplyService:
             }
             
         ).fetchone()[0]
+        self._db.session.commit()
         return id
 
     def create_reply_section(self, post_id):
@@ -88,6 +89,27 @@ class ReplyService:
             }
         )
         self.commit()
+
+    def create_post_vote(self, post_id, user_id, points):
+        self._db.session.execute(
+            """
+            INSERT INTO votes (
+                reply_id,
+                user_id,
+                points
+            )
+            SELECT reply_id, :user_id, :points 
+            FROM reply_section
+            WHERE post_id=:post_id
+            ON CONFLICT (reply_id, user_id)
+            DO UPDATE SET points = EXCLUDED.points;
+            """, {
+                "user_id":user_id,
+                "points":points,
+                "post_id":post_id
+            }
+        )
+        self._db.session.commit()
 
     def create_post_reply(self, post_id, user_id, content):
         self._db.session.execute(

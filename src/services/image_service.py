@@ -28,13 +28,12 @@ class ImageService:
                 FROM editors
                 WHERE user_id=:user_id
                 GROUP BY row_number, col_number
-            )
+            ) AND user_id=:user_id
             ORDER BY order_number
             """,{
                 "user_id":user_id,
             }
         ).fetchall()
-
         actions = []
         last_order_number = 0
         new_order_number = 0
@@ -46,8 +45,6 @@ class ImageService:
                 new_order_number+=1
                 last_order_number = action.order_number
             actions[-1]["order_number"] = new_order_number
-            
-
         return json.dumps(actions, indent=2)
 
     def save_as_image(self, user_id):

@@ -22,7 +22,7 @@
                 Your browser does not support the canvas element.
             </canvas><p>
             
-            <p>{{post.time}}</p>
+            <p>{{post.time}} Likes: {{post.votes}}</p>
             <a href="/post/{{post.id}}">Open post</a><br>
         {% endfor %}
         <script type="text/javascript">var ctx; function setup(){} draw_images({{ images|tojson }});</script>

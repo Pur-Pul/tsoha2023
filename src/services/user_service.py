@@ -39,6 +39,7 @@ class UserService:
 
     def validate_credentials(self, username, password):
         user = self._fetch_user(username)
+        print(user)
         return user and check_password_hash(user.password, password)
 
     def register(self, username, hash_value):
@@ -55,6 +56,7 @@ class UserService:
                 "password":hash_value
             }
         ).fetchone()
+        self._db.session.commit()
         if id is None:
             raise InvalidUserNameException(username, "Username is already taken")
         else:
