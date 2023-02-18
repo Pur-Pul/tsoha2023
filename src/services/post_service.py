@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 class PostService:
     def __init__(self, database = None):
         if database is None:
-            from src.db import db
+            from db import db
             self._db = db
         else:
             self._db = database
@@ -56,7 +56,7 @@ class PostService:
         self._db.session.commit()
     
     def get_post(self, post_id):
-        return self._db.session.execute(
+        val = self._db.session.execute(
             """
             SELECT posts.id, posts.image_id, posts.title, posts.time, COALESCE(SUM(votes.points),0) AS votes, users.username
             FROM posts
@@ -74,3 +74,5 @@ class PostService:
                 "post_id":post_id
             }
         ).fetchone()
+        print(val.time)
+        return val

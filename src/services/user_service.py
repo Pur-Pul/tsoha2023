@@ -1,7 +1,13 @@
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 class InvalidUserNameException(Exception):
     def __init__(self, username, message="Username is not valid"):
         self.username = username
+        self.message = message
+        super().__init__(self.message)
+
+class InvalidPasswordException(Exception):
+    def __init__(self, password, message="Password is not valid"):
+        self.password = password
         self.message = message
         super().__init__(self.message)
         
@@ -9,7 +15,7 @@ class InvalidUserNameException(Exception):
 class UserService:
     def __init__(self, database = None):
         if database is None:
-            from src.db import db
+            from db import db
             self._db = db
         else:
             self._db = database
@@ -39,10 +45,14 @@ class UserService:
 
     def validate_credentials(self, username, password):
         user = self._fetch_user(username)
-        print(user)
         return user and check_password_hash(user.password, password)
 
-    def register(self, username, hash_value):
+    def register(self, username, password):
+        hash_value = generate_password_hash(password)
+        if len(username) > 10 or len(username) < 2:
+            raise InvalidUserNameException(username, "Username has to be 2-10 letters long.")
+        if len(password) > 20 or len(password) < 6:
+            raise InvalidPasswordException(password, "password has to be 6-20 letters long.")
         id = self._db.session.execute(
             """
             INSERT INTO users (

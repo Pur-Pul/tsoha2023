@@ -34,13 +34,14 @@ let coordinates = { x: 0, y: 0 };
 let scale = canvas.clientWidth / 32;
 let CANVAS_WIDTH = 32;
 let CANVAS_HEIGHT = 32;
+let redo_state = undefined;
 ctx.fillStyle = "white";
 ctx.fillRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
 
 //listeners
 function setup() {
     document.addEventListener('mousedown', start);
-    document.addEventListener('mousedown', draw)
+    document.addEventListener('mousedown', draw);
     document.addEventListener('mouseup', stop);
 }
 
@@ -50,6 +51,33 @@ function updateColorPicker() {
     colorCtx.fillRect(0, 0, colorPicker.clientWidth, colorPicker.clientHeight);
 }
 updateColorPicker();
+
+function toggleColorPickerTool() {
+    if (canvas.classList.contains('colorPickerTool')) {
+        document.removeEventListener('mousedown', pick);
+        setup();
+    }
+    else {
+        document.removeEventListener('mousedown', start);
+        document.removeEventListener('mousedown', draw);
+        document.removeEventListener('mouseup', stop);
+        document.addEventListener('mousedown', pick);
+    }
+    canvas.classList.toggle('colorPickerTool')
+}
+
+function pick(event) {
+    reposition(event);
+    const data = ctx.getImageData(coordinates.x, coordinates.y, 1, 1).data;
+    slider.red.value = data[0];
+    slider.red.dispatchEvent(new Event('input', {bubbles:true, cancelable:true}));
+    slider.green.value = data[1];
+    slider.green.dispatchEvent(new Event('input', {bubbles:true, cancelable:true}));
+    slider.blue.value = data[2];
+    slider.blue.dispatchEvent(new Event('input', {bubbles:true, cancelable:true}));
+    updateColorPicker();
+    toggleColorPickerTool();
+}
 
 function RGBtoHex() {
     red = Number(slider.red.value).toString(16);
@@ -78,12 +106,10 @@ function add_to_stroke() {
     stroke[pointer] = {};
     stroke[pointer]["x"] = coordinates.x;
     stroke[pointer]["y"] = coordinates.y;
-    
     pointer++;
 }
 
 function start(event) {
-    
     document.addEventListener('mousemove', draw);
     reposition(event);
 }
@@ -93,16 +119,11 @@ function reposition(event) {
     coordinates.y = Math.floor((event.pageY - canvas.offsetTop)/scale);
 }
 
-function stop() {
-    console.log(csrf_token)
-    document.removeEventListener('mousemove', draw);
-    if (pointer == 0) {
-        return
-    }
+function save_stroke(stroke_to_save) {
     fetch("/editor", {
         method: "POST",
         credentials: "include",
-        body: JSON.stringify(stroke),
+        body: JSON.stringify(stroke_to_save),
         cache: "no-cache",
         headers: new Headers({
             "content-type": "application/json",
@@ -115,6 +136,15 @@ function stop() {
             return;
         }
     })
+}
+
+function stop() {
+    document.removeEventListener('mousemove', draw);
+    if (pointer == 0) {
+        return
+    }
+    redo_state = undefined;
+    save_stroke(stroke);
     pointer = 0
     for (i in stroke) {
         stroke[i] = undefined;
@@ -129,4 +159,53 @@ function draw(event) {
     ctx.fillStyle = RGBtoHex();
     ctx.fillRect(coordinates.x, coordinates.y, 1, 1);
     add_to_stroke();
+}
+
+function undo() {
+    fetch("/editor", {
+        method: "POST",
+        credentials: "include",
+        body: JSON.stringify({'undo':true,}),
+        cache: "no-cache",
+        headers: new Headers({
+            "content-type": "application/json",
+            "X-CSRFToken": csrf_token
+        })
+    })
+    .then(
+        function (response) {
+            if (response.status != 200) {
+                invoke_error(`Error: ${response.status}`);
+                return;
+            }
+            response.json().then(
+                function (data) {
+                    redo_state = data.old_action;
+                   
+                    for (i in data.new_action) {
+                        pixel = data.new_action[i];
+                        if (pixel.color == null) ctx.fillStyle = 'white';
+                        else ctx.fillStyle = pixel.color;
+                        if (pixel == null) continue;
+                        ctx.fillRect(pixel.row_number, pixel.col_number, 1, 1);
+                    }
+                    
+
+                }
+            )
+        }
+    )
+}
+
+function redo() {
+    if (redo_state == undefined) return;
+    let temp_stroke = {"color": redo_state[0].color};
+    for (i in redo_state) {
+        ctx.fillStyle = redo_state[0].color;     
+        ctx.fillRect(redo_state[i].row_number, redo_state[i].col_number, 1, 1);
+        temp_stroke[i] = {};
+        temp_stroke[i]["x"] = redo_state[i].row_number;
+        temp_stroke[i]["y"] = redo_state[i].col_number;
+    }
+    save_stroke(temp_stroke);
 }

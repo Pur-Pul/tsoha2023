@@ -1,9 +1,9 @@
 import json
 from flask import render_template, redirect, request, session, jsonify, make_response, flash
 from flask_wtf.csrf import CSRFError
-from werkzeug.security import generate_password_hash
-from src.services import UserService, EditorService, ImageService, PostService, ReplyService, InvalidUserNameException
-from src.app import app
+
+from services import UserService, EditorService, ImageService, PostService, ReplyService, InvalidUserNameException, InvalidPasswordException
+from app import app
 
 user_service = UserService()
 editor_service = EditorService()
@@ -45,11 +45,11 @@ def logout():
 def register():
     if request.method == "POST":
         username = request.form["username"]
-        hash_value = generate_password_hash(request.form["password"])
+        password = request.form["password"]
         try:
-            user_service.register(username, hash_value)
+            user_service.register(username, password)
             return redirect("/")
-        except InvalidUserNameException as error:
+        except (InvalidUserNameException, InvalidPasswordException) as error:
             flash(str(error))
             return render_template("index.html")
         
@@ -65,20 +65,22 @@ def editor():
         return render_template("editor.html", actions=actions, action_count=len(actions))
 
     jsdata = request.get_json()
-    pixels = []
-    for item in jsdata.values():
-        if isinstance(item, dict):
-            pixels.append((item["x"], item["y"]))
-    print(jsdata["color"])
-    editor_service.color_pixels(
-        pixels,
-        jsdata["color"],
-        user_service.get_id(session["username"])
-    )
+    if 'undo' not in jsdata.keys():
+        pixels = []
+        for item in jsdata.values():
+            if isinstance(item, dict):
+                pixels.append((item["x"], item["y"]))
 
-    res = make_response(jsonify({"message": "brush saved"}), 200)
-
-    return res
+        editor_service.color_pixels(
+            pixels,
+            jsdata["color"],
+            user_service.get_id(session["username"])
+        )
+        response = jsonify({"message": "brush saved"})
+    else:
+        actions = editor_service.undo_action(user_service.get_id(session["username"]))
+        response = jsonify(actions)
+    return make_response(response, 200)
 
 @app.route("/editor/clear", methods=["POST"])
 def clear():

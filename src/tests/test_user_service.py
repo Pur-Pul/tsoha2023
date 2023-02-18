@@ -3,8 +3,7 @@ import psycopg2
 import psycopg2.extras
 import testing.postgresql
 from unittest.mock import Mock
-from werkzeug.security import generate_password_hash
-from src.services import UserService
+from src.services import UserService, InvalidUserNameException, InvalidPasswordException
 
 class TestUserService(unittest.TestCase):
     def setUp(self) -> None:
@@ -61,11 +60,11 @@ class TestUserService(unittest.TestCase):
     def test_validate_credentials(self):
         username="testname"
         password="testpassword"
-        hashed_password = generate_password_hash(password)
-        self.create_test_user(username, hashed_password)
+        self.user_service.register(username, password)
         self.assertTrue(self.user_service.validate_credentials(username, password))
+        self.assertFalse(self.user_service.validate_credentials(username, "wrong"))
     
-    def test_register(self):
+    def test_register_valid_user(self):
         username="testname"
         password="testpassword"
         self.user_service.register(username,password)
@@ -77,11 +76,78 @@ class TestUserService(unittest.TestCase):
         )
         result = self.cur.fetchone()
         self.assertEqual(result.username, username)
-        self.assertEqual(result.password, password)
+        self.assertNotEqual(result.password, password)
     
+    def test_register_too_short_username_throws_exception(self):
+        username="t"
+        password="testpassword"
+        self.assertRaises(InvalidUserNameException, self.user_service.register, username, password)
+        self.cur.execute(
+        """
+        SELECT username, password
+        FROM users
+        """
+        )
+        result = self.cur.fetchone()
+        self.assertIsNone(result)
+    
+    def test_register_too_long_username_throws_exception(self):
+        username="testusername"
+        password="testpassword"
+        self.assertRaises(InvalidUserNameException, self.user_service.register, username, password)
+        self.cur.execute(
+        """
+        SELECT username, password
+        FROM users
+        """
+        )
+        result = self.cur.fetchone()
+        self.assertIsNone(result)
+    
+    def test_register_too_short_password_throws_exception(self):
+        username="testname"
+        password="test"
+        self.assertRaises(InvalidPasswordException, self.user_service.register, username, password)
+        self.cur.execute(
+        """
+        SELECT username, password
+        FROM users
+        """
+        )
+        result = self.cur.fetchone()
+        self.assertIsNone(result)
+    
+    def test_register_too_short_password_throws_exception(self):
+        username="testname"
+        password="testpasswordtestpassword"
+        self.assertRaises(InvalidPasswordException, self.user_service.register, username, password)
+        self.cur.execute(
+        """
+        SELECT username, password
+        FROM users
+        """
+        )
+        result = self.cur.fetchone()
+        self.assertIsNone(result)
+    
+    def test_register_taken_username_throws_exception(self):
+        username="testname"
+        password="testpassword"
+        self.user_service.register(username,password)
+        self.assertRaises(InvalidUserNameException, self.user_service.register, username, password)
+        self.cur.execute(
+        """
+        SELECT username, password
+        FROM users
+        """
+        )
+        result = self.cur.fetchall()
+        self.assertEqual(len(result), 1)
+
     def test_get_id(self):
         username="testname"
         password="testpassword"
+        self.assertIsNone(self.user_service.get_id(username))
         self.create_test_user(username, password)
         self.cur.execute(
         """
@@ -90,4 +156,4 @@ class TestUserService(unittest.TestCase):
         """
         )
         res = self.cur.fetchone()
-        self.assertEqual(res.id, 1)
+        self.assertEqual(res.id, self.user_service.get_id(username))

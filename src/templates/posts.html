@@ -26,7 +26,7 @@
             <label> Score: {{post.votes}}</label>
             <script type="text/javascript">
                 var post_time = document.getElementById("{{post.id}}_time");
-                post_time.innerHTML = "posted " + simplify_timestamp({{post.time|tojson}});
+                post_time.innerHTML = "Posted " + simplify_timestamp({{post.time|tojson}});
             </script>
             <a href="/post/{{post.id}}">Open post</a><br>
         {% endfor %}

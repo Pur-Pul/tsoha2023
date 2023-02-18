@@ -8,6 +8,10 @@
                 width: 512px;
                 height: 512px;
                 image-rendering: pixelated;
+                margin-top: 1em;
+            }
+            #pixelCanvas:hover:not(.colorPickerTool) {
+                cursor: url("{{ url_for('static',filename='images/pen.png') }}") 0 25, auto;
             }
             #red_slider::-webkit-slider-thumb {
                 background: red;
@@ -31,7 +35,7 @@
                 float: left;
                 -webkit-appearance: none;
                 appearance: none;
-                width: 50%;
+                width: 70%;
                 height: 10px;
                 border-radius: 25px;
                 margin-right: 1em;
@@ -48,39 +52,78 @@
             form {
                 float: left;
             }
-            .action_button {
-                background-color: aquamarine;
-                border-color: transparent;
-                padding: 5px 10px 5px 10px;
-                margin-right: 1em;
-                margin-left: 1em;
-            }
-            .action_button:hover {
-                background-color: #2EE59D;
-                transform: translateY(-2px);
-                transform: translate(-2px);
-                box-shadow: 2px 2px rgb(204, 193, 178);
-            }
             #clear {
                 background-color: rgb(255, 126, 126);
             }
             #clear:hover {
                 background-color: rgb(244, 107, 107);
             }
+            .colorPickerTool:hover {
+                cursor: url("{{ url_for('static',filename='images/color-picker.png') }}") 0 25, auto;
+            }
+            .slidecontainer {
+                overflow: hidden;
+                width: 350px;
+                float: left;
+            }
+            .slidecontainer div {
+                margin-top: 1em;;
+            }
+            .toolcontainer {
+                overflow: hidden;
+                width: 140px;
+                height: 100px;
+                display: grid;
+                grid-template-rows: 33px 33px 33px;
+                grid-template-columns: 46px 46px 46px;
+                row-gap: 5px;
+            }
+            .toolcontainer canvas{
+                grid-row-start: 2;
+                grid-row-end: 2;
+                grid-column-start: 1;
+                grid-column-end: 1;
+
+            }
+            .toolcontainer #colorPickerButton{
+                grid-row-start: 2;
+                grid-column-start: 2;
+                grid-column-end: 4;
+                margin: 0;
+                padding: 0;
+            }
+            .toolcontainer div {
+                grid-row-start: 3;
+                grid-column-start: 1;
+                grid-column-end: 4;
+            }
+            
         </style>
         <script type="text/javascript">let csrf_token = "{{ csrf_token() }}";</script>
     </head>
     <body>
         <div class="slidecontainer">
-            <input class="color_slider" type="range" min="0" max="255" value="0" class="slider" id="red_slider">
-            <p>Red: <span id="red">0</span></p>
-            <input class="color_slider" type="range" min="0" max="255" value="0" class="slider" id="green_slider">
-            <p>Green: <span id="green">0</span></p>
-            <input class="color_slider" type="range" min="0" max="255" value="0" class="slider" id="blue_slider">
-            <p>Blue: <span id="blue">0</span></p>
+            <div>
+                <input class="color_slider" type="range" min="0" max="255" value="0" class="slider" id="red_slider">
+                <span>Red: <span id="red">0</span></span>
+            </div>
+            <div>
+                <input class="color_slider" type="range" min="0" max="255" value="0" class="slider" id="green_slider">
+                <span>Green: <span id="green">0</span></span>
+            </div>
+            <div>
+                <input class="color_slider" type="range" min="0" max="255" value="0" class="slider" id="blue_slider">
+                <span>Blue: <span id="blue">0</span></span>
+            </div>
         </div>
-
-        <canvas id="colorPicker" width="32" height="32"></canvas><br>
+        <div class="toolcontainer">
+            <canvas id="colorPicker" width="32" height="32"></canvas>
+            <input type="button" id="colorPickerButton" class="action_button" value="Pick color" onclick="toggleColorPickerTool();"></input>
+            <div>
+                <input type="button" id="undo" value="↶" onclick="undo();" class="dotool action_button"></input>
+                <input type="button" id="redo" value="↷" onclick="redo();" class="dotool action_button"></input>
+            </div>
+        </div>
         <canvas id="pixelCanvas" width="32" height="32" style="border:1px solid #c3c3c3;">
             Your browser does not support the canvas element.
         </canvas>

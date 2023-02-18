@@ -38,23 +38,35 @@ class TestEditorService(unittest.TestCase):
         self.postgresql.stop()
 
     def test_color_pixels(self):
-        pixels = [(1,2),(3,4),(5,6),(7,8)]
+        pixels = [[(1,2),(3,4),(5,6),(7,8)],[(9,10),(11,12),(13,14),(15,16)]]
         color = "white"
-        self.editor_service.color_pixels(pixels, color, 1)
+        self.editor_service.color_pixels(pixels[0], color, 1)
+        self.editor_service.color_pixels([(17,18),(19,20)], color, 2)
+        self.editor_service.color_pixels(pixels[1], color, 1)
         self.cur.execute(
         """
         SELECT *
         FROM editors
+        WHERE user_id=1 AND order_number=0
         """
         )
         result = self.cur.fetchall()
-        print(result)
         for i, row in enumerate(result):
-            self.assertEqual(row.row_number, pixels[i][0])
-            self.assertEqual(row.col_number, pixels[i][1])
+            self.assertEqual(row.row_number, pixels[0][i][0])
+            self.assertEqual(row.col_number, pixels[0][i][1])
             self.assertEqual(row.color, color)
-            self.assertEqual(row.user_id, 1)
-            self.assertEqual(row.order_number, 0)
+        self.cur.execute(
+        """
+        SELECT *
+        FROM editors
+        WHERE user_id=1 AND order_number=1
+        """
+        )
+        result = self.cur.fetchall()
+        for i, row in enumerate(result):
+            self.assertEqual(row.row_number, pixels[1][i][0])
+            self.assertEqual(row.col_number, pixels[1][i][1])
+            self.assertEqual(row.color, color)
     
     def test_get_actions(self):
         sql = """
@@ -100,4 +112,72 @@ class TestEditorService(unittest.TestCase):
         self.assertEqual(len(result), 2)
         
         for i, row in enumerate(result):
-            self.assertEqual(row, tuple(actions[i].values()))
+            self.assertEqual(row, actions[i])
+    
+    def test_clear_actions(self):
+        pixels = [[(1,2),(3,4),(5,6),(7,8)],[(9,10),(11,12),(13,14),(15,16)]]
+        color = "white"
+        self.editor_service.color_pixels(pixels[0], color, 1)
+        self.editor_service.color_pixels(pixels[1], color, 2)
+        self.editor_service.clear_actions(1)
+        self.cur.execute(
+        """
+        SELECT *
+        FROM editors
+        WHERE user_id=1
+        """
+        )
+        result = self.cur.fetchall()
+        self.assertEqual(len(result),0)
+        self.cur.execute(
+        """
+        SELECT *
+        FROM editors
+        WHERE user_id=2
+        """
+        )
+        result = self.cur.fetchall()
+        self.assertEqual(len(result),4)
+    
+    def test_undo_action_returns_no_actions_if_canvas_is_empty(self):
+        pixels = [[(1,2),(3,4),(5,6),(7,8)],[(9,10),(11,12),(13,14),(15,16)]]
+        color = "red"
+        self.editor_service.color_pixels(pixels[1], color, 2)
+        val = self.editor_service.undo_action(1)
+        self.assertEqual(val["new_action"], [])
+        self.assertEqual(val["old_action"], [])
+    
+    def test_undo_action_returns_old_action_and_clear_new_action_if_canvas_contains_one_stroke(self):
+        pixels = [[(1,2),(3,4),(5,6),(7,8)],[(9,10),(11,12),(13,14),(15,16)]]
+        color = "red"
+        self.editor_service.color_pixels(pixels[0], color, 1)
+        self.editor_service.color_pixels(pixels[1], color, 2)
+        val = self.editor_service.undo_action(1)
+        
+        self.assertNotEqual(val["new_action"], [])
+        for pixel in val["new_action"]:
+            self.assertEqual(pixel["color"], None)
+            self.assertTrue((pixel["row_number"],pixel["col_number"]) in pixels[0])
+        
+        self.assertTrue(len(val["old_action"]), len(pixels[0]))
+        for pixel in val["old_action"]:
+            self.assertEqual(pixel["color"], color)
+            self.assertTrue((pixel["row_number"],pixel["col_number"]) in pixels[0])
+
+    def test_undo_action_returns_old_action_and_new_action_if_canvas_contains_overlapping_strokes(self):
+        pixels = [[(1,2),(3,4),(5,6),(7,8)],[(9,10),(11,12),(13,14),(15,16)]]
+        color = "red"
+        self.editor_service.color_pixels(pixels[0], color, 1)
+        self.editor_service.color_pixels(pixels[0], "blue", 1)
+        self.editor_service.color_pixels(pixels[1], color, 2)
+        val = self.editor_service.undo_action(1)
+        
+        self.assertTrue(len(val["new_action"]), len(pixels[0]))
+        for pixel in val["new_action"]:
+            self.assertEqual(pixel["color"], color)
+            self.assertTrue((pixel["row_number"],pixel["col_number"]) in pixels[0])
+        
+        self.assertTrue(len(val["old_action"]), len(pixels[0]))
+        for pixel in val["old_action"]:
+            self.assertEqual(pixel["color"], "blue")
+            self.assertTrue((pixel["row_number"],pixel["col_number"]) in pixels[0])

@@ -25,5 +25,5 @@ function reply(post_id) {
 
 function generate_reply(id, content, username, time) {
     var paragraph = document.getElementById("reply_"+id);
-    paragraph.innerHTML = content + "<br/>"+ username +" replied " + simplify_timestamp(time);
+    paragraph.innerHTML = content + "<p class='indent'>" +"- "+ username +" replied " + simplify_timestamp(time) + "</p>";
 }

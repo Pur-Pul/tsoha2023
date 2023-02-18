@@ -6,6 +6,11 @@ def start(ctx):
         ctx.run("flask run")
 
 @task
+def start_debug(ctx):
+    with ctx.cd("src"):
+        ctx.run("flask --app app:app --debug run")
+
+@task
 def lint(ctx):
     ctx.run("pylint src")
 

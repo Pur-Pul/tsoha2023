@@ -9,17 +9,10 @@
                 image-rendering: pixelated;
             }
             #vote {
-                background-color: transparent;
-                border-color: transparent;
-                font-size: x-large;
-                padding: 0em;
-                margin: -0.2em;
-            }
-            #vote, #reply, #post_time {
-                display: table-cell;
-            }
-            #post_time {
-                padding-left: 5em;
+                font-size: large;
+                padding: 3px 9px 3px 9px;
+                margin-left: 0;
+                margin-right: 0.1em;
             }
             #reply {
                 background-color: aquamarine;
@@ -31,9 +24,31 @@
             #score {
                 margin-left: 1em;
             }
+            #post_time {
+                float: right;
+            }
             #info_bar {
                 background-color:aliceblue;
                 padding: 15px 10px 15px 10px;
+            }
+            #info_bar input {
+                float: left;
+            }
+            #buttons {
+                transform: translateY(-5px);
+            }
+            .reply {
+                padding: 10px 10px 5px 10px;
+                background-color: aliceblue;
+                overflow-wrap: break-word;
+            }
+            .indent {
+                margin-top: 0;
+                margin-bottom: 0;
+                margin-right: 0px;
+                margin-left: 10px;
+                border: 1px solid #c3c3c3;
+                color: grey;
             }
         </style>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -45,7 +60,7 @@
         <div class="content">
             <script type="text/javascript" src="{{url_for('static', filename='progressive_draw.js')}}"></script>
             <h1>{{ post.title }}</h1>
-            <canvas data-drawn="false" id="pixelCanvas" class="center" width="32" height="32" style="border:1px solid #c3c3c3;">
+            <canvas data-drawn="false" id="pixelCanvas" width="32" height="32" style="border:1px solid #c3c3c3;">
                 Your browser does not support the canvas element.
             </canvas><p>
             <script type="text/javascript">
@@ -54,25 +69,24 @@
                 draw_images([{{ image|tojson }}]);
                 
             </script>
-            <span id="info_bar" class="center">
-                
-                <input id="reply" class="center" type="button" value="Reply" onclick="reply({{ post.id }});" />
-                <input id="vote" class="center" type="button" value="🔼" onclick="vote({{ post.id }}, true);" />
-                <input id="vote" class="center" type="button" value="🔽" onclick="vote({{ post.id }}, false);" />
-                <label id="score" class="center">Score: {{ post.votes }}</label>
-                <label id="post_time" class="center">test</label>
-            </span>
+            <div id="info_bar">
+                <div id="buttons">
+                    <input id="reply" class="action_button" type="button" value="Reply" onclick="reply({{ post.id }});" />
+                    <input id="vote" class="action_button" type="button" value="↑" onclick="vote({{ post.id }}, true);" />
+                    <input id="vote" class="action_button" type="button" value="↓" onclick="vote({{ post.id }}, false);" />
+                </div>
+                <label id="score">Score: {{ post.votes }}</label>
+                <div id="post_time">
+                    <label>test</label>
+                </div>
+            </div>
             <script type="text/javascript">
                 var post_time = document.getElementById('post_time');
                 post_time.innerHTML = "post by " + "{{post.username}}" + " "+ simplify_timestamp({{post.time|tojson}});
-                
-            </script>
-            <script type="text/javascript">
-                
             </script>
             
             {% for reply in replies %}
-                <p id="reply_{{reply.id}}">place_holder</p>
+                <p id="reply_{{reply.id}}", class="reply">place_holder</p>
                 <script type="text/javascript">
                     generate_reply({{reply.id}},"{{reply.content}}","{{reply.username}}",{{reply.time|tojson}});
                 </script>

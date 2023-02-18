@@ -2,7 +2,7 @@ import json
 class ImageService:
     def __init__(self, database = None):
         if database is None:
-            from src.db import db
+            from db import db
             self._db = db
         else:
             self._db = database

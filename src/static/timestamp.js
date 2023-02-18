@@ -13,7 +13,7 @@ function simplify_timestamp(timestamp) {
     const hour = minute * 60;
     const day = hour * 24;
     const year = day * 365;
-    let old_date = new Date(timestamp+"+02:00");
+    let old_date = new Date(timestamp);
     const current_date = new Date();
     times = {
     "year" : Math.round((current_date.getTime() - old_date.getTime()) / year),
