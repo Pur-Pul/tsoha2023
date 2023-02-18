@@ -59,10 +59,12 @@ def register():
 @app.route("/editor", methods=["GET","POST"])
 def editor():
     if request.method == "GET":
-        if not session["username"]:
+        try:
+            actions = editor_service.get_actions(user_service.get_id(session["username"]))
+            return render_template("editor.html", actions=actions, action_count=len(actions))
+        except KeyError:
+            flash("You need to login first.")
             return redirect("/")
-        actions = editor_service.get_actions(user_service.get_id(session["username"]))
-        return render_template("editor.html", actions=actions, action_count=len(actions))
 
     jsdata = request.get_json()
     if 'undo' not in jsdata.keys():
@@ -76,7 +78,7 @@ def editor():
             jsdata["color"],
             user_service.get_id(session["username"])
         )
-        response = jsonify({"message": "brush saved"})
+        response = jsonify({"message" : "brush saved"})
     else:
         actions = editor_service.undo_action(user_service.get_id(session["username"]))
         response = jsonify(actions)
@@ -92,16 +94,30 @@ def save_to_profile():
     image_service.save_as_image(user_service.get_id(session["username"]))
     return redirect("/editor")
 
-@app.route("/profile", methods=["GET"])
+@app.route("/profile/", methods=["GET"])
 def profile_redirect():
+    try:
+        session['username']
+    except KeyError:
+        flash("You need to login first.")
+        return redirect("/")
+    
     return redirect("/profile/"+session["username"])
+    
 
 @app.route("/profile/<username>", methods=["GET"])
 def profile(username):
+    try: 
+        session['username']
+    except KeyError:
+        flash("You need to login first.")
+        return redirect("/")
+
     images={}
     if username==session["username"]:
         images = image_service.get_user_images(user_service.get_id(username))
     return render_template("profile.html", images=images, username=username)
+
 
 @app.route("/make-post", methods=["POST"])
 def make_post():
@@ -140,11 +156,19 @@ def post(post_id):
 
 @app.route("/post/<int:post_id>/reply", methods=["POST"])
 def make_post_reply(post_id):
+    try:
+        session['username']
+    except KeyError:
+        return make_response(jsonify({"message":"You need to login first"}), 202)
     reply_service.create_post_reply(post_id, user_service.get_id(session["username"]), request.get_json()["content"])
     return redirect("/post/"+str(post_id))
 
 @app.route("/post/<int:post_id>/vote", methods=["POST"])
 def make_post_vote(post_id):
+    try:
+        session['username']
+    except KeyError:
+        return make_response(jsonify({"message":"You need to login first"}), 202)
     points = sign(request.get_json()["value"])
     reply_service.create_post_vote(post_id, user_service.get_id(session["username"]), points)
     return redirect("/post/"+str(post_id))

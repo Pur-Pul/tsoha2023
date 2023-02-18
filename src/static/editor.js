@@ -175,7 +175,7 @@ function undo() {
     .then(
         function (response) {
             if (response.status != 200) {
-                invoke_error(`Error: ${response.status}`);
+                invoke_error(response);
                 return;
             }
             response.json().then(
@@ -189,8 +189,6 @@ function undo() {
                         if (pixel == null) continue;
                         ctx.fillRect(pixel.row_number, pixel.col_number, 1, 1);
                     }
-                    
-
                 }
             )
         }

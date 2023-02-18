@@ -15,7 +15,7 @@ function reply(post_id) {
     })
     .then(function (response) {
         if (response.status != 200) {
-            invoke_error(`Error: ${response.status}`);
+            invoke_error(response);
             return;
         } else {
             window.location.reload();

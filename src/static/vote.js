@@ -11,12 +11,14 @@ function vote(post_id, like) {
             "X-CSRFToken": csrf_token
         })
     })
-    .then(function (response) {
-        if (response.status != 200) {
-            invoke_error(`Error: ${response.status}`);
-            return;
-        } else {
-            window.location.reload();
+    .then(
+        function (response) {
+            if (response.status != 200) {
+                invoke_error(response);
+                return;
+            } else {
+                window.location.reload();
+            }
         }
-    })
+    )
 }

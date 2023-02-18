@@ -71,6 +71,10 @@ function wipe(context) {
 }
 
 function invoke_error(error) {
-    console.log(error);
-    window.alert(`An error occured!\n${error}`);
+    error.json().then(
+        function (data) {
+            console.log(data);
+            window.alert(data.message);
+        }
+    )
 }
