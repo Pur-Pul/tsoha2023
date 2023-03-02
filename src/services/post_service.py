@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 class PostService:
     def __init__(self, database = None):
         if database is None:
@@ -8,7 +7,7 @@ class PostService:
             self._db = database
 
     def make_post(self, image_id, title):
-        id = self._db.session.execute(
+        post_id = self._db.session.execute(
             """
             INSERT INTO posts (
                 image_id,
@@ -24,7 +23,7 @@ class PostService:
                 "title":title
             }
         ).fetchone()[0]
-        return id
+        return post_id
 
     def get_posts(self, option):
         sql = """
@@ -54,7 +53,7 @@ class PostService:
             }
         )
         self._db.session.commit()
-    
+
     def get_post(self, post_id):
         val = self._db.session.execute(
             """

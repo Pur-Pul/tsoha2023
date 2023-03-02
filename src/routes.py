@@ -1,8 +1,23 @@
-import json
-from flask import render_template, redirect, request, session, jsonify, make_response, flash
+from flask import (
+    render_template,
+    redirect,
+    request,
+    session,
+    jsonify,
+    make_response,
+    flash
+)
 from flask_wtf.csrf import CSRFError
 
-from services import UserService, EditorService, ImageService, PostService, ReplyService, InvalidUserNameException, InvalidPasswordException
+from services import (
+    UserService,
+    EditorService,
+    ImageService,
+    PostService,
+    ReplyService,
+    InvalidUserNameException,
+    InvalidPasswordException
+)
 from app import app
 
 user_service = UserService()
@@ -52,7 +67,7 @@ def register():
         except (InvalidUserNameException, InvalidPasswordException) as error:
             flash(str(error))
             return render_template("index.html")
-        
+
     session["register"] = True
     return render_template("index.html")
 
@@ -101,13 +116,13 @@ def profile_redirect():
     except KeyError:
         flash("You need to login first.")
         return redirect("/")
-    
+
     return redirect("/profile/"+session["username"])
-    
+
 
 @app.route("/profile/<username>", methods=["GET"])
 def profile(username):
-    try: 
+    try:
         session['username']
     except KeyError:
         flash("You need to login first.")
@@ -124,7 +139,7 @@ def make_post():
     owner_id = image_service.get_image_owner_id(request.get_json()["id"])
     if not validate_user_id(owner_id):
         return "Invalid post request"
-    
+
     post_id = post_service.make_post(request.get_json()["id"], request.get_json()["title"])
     reply_service.create_reply_section(post_id)
 
@@ -139,20 +154,20 @@ def posts_redirect():
 def posts(option):
     if not option:
         option = "new"
-    posts = post_service.get_posts(option)
+    image_posts = post_service.get_posts(option)
     images = []
-    for post in posts:
-        images.append(image_service.get_image(post.image_id))
-    return render_template("posts.html", posts=posts, images=images)
+    for image_post in image_posts:
+        images.append(image_service.get_image(image_post.image_id))
+    return render_template("posts.html", posts=image_posts, images=images)
 
 @app.route("/post/<int:post_id>", methods=["GET"])
 def post(post_id):
-    post = post_service.get_post(post_id)
-    if post is None:
+    image_post = post_service.get_post(post_id)
+    if image_post is None:
         return make_response("404: Post does not exist", 404)
-    image = image_service.get_image(post.image_id)
+    image = image_service.get_image(image_post.image_id)
     replies = reply_service.get_post_replies(post_id)
-    return render_template("post.html", post=post, image=image, replies=replies)
+    return render_template("post.html", post=image_post, image=image, replies=replies)
 
 @app.route("/post/<int:post_id>/reply", methods=["POST"])
 def make_post_reply(post_id):
@@ -160,7 +175,11 @@ def make_post_reply(post_id):
         session['username']
     except KeyError:
         return make_response(jsonify({"message":"You need to login first"}), 202)
-    reply_service.create_post_reply(post_id, user_service.get_id(session["username"]), request.get_json()["content"])
+    reply_service.create_post_reply(
+        post_id,
+        user_service.get_id(session["username"]),
+        request.get_json()["content"]
+    )
     return redirect("/post/"+str(post_id))
 
 @app.route("/post/<int:post_id>/vote", methods=["POST"])

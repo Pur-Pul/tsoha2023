@@ -10,7 +10,7 @@ class InvalidPasswordException(Exception):
         self.password = password
         self.message = message
         super().__init__(self.message)
-        
+
 
 class UserService:
     def __init__(self, database = None):
@@ -35,7 +35,7 @@ class UserService:
         user = self._db.session.execute(
             """
             SELECT id, password
-            FROM users 
+            FROM users
             WHERE username=:username;
             """, {
                 "username":username
@@ -53,7 +53,7 @@ class UserService:
             raise InvalidUserNameException(username, "Username has to be 2-10 letters long.")
         if len(password) > 20 or len(password) < 6:
             raise InvalidPasswordException(password, "password has to be 6-20 letters long.")
-        id = self._db.session.execute(
+        user_id = self._db.session.execute(
             """
             INSERT INTO users (
                 username,
@@ -67,10 +67,9 @@ class UserService:
             }
         ).fetchone()
         self._db.session.commit()
-        if id is None:
+        if user_id is None:
             raise InvalidUserNameException(username, "Username is already taken")
-        else:
-            return id
+        return user_id
 
     def get_id(self, username):
         user_id = self._db.session.execute(

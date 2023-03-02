@@ -49,7 +49,7 @@ class ImageService:
 
     def save_as_image(self, user_id):
         image = self._convert_to_image(user_id)
-    
+
         self._db.session.execute(
             """
             INSERT INTO images (
@@ -121,4 +121,3 @@ class ImageService:
         for image in result:
             images[image.image_id] = image.data
         return images
-

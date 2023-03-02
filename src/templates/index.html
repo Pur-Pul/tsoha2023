@@ -14,7 +14,7 @@
                 <p>Password:<br>
                 <input type="password" name="password"></p>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                <input type="submit" value="Register">
+                <input type="submit" value="Register" class="action_button">
 
             </form>
             <p>Already have an account? <a href="/">Login</a></p>
@@ -29,7 +29,7 @@
                 <p>Password:<br>
                 <input type="password" name="password"></p>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                <input type="submit" value="Login">
+                <input type="submit" value="Login" class="action_button">
             </form>
             <p>Don't have an account? <a href="/register">Register</a></p>
         {% endif %}

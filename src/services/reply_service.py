@@ -7,7 +7,7 @@ class ReplyService:
             self._db = database
 
     def _create_main_reply(self) -> int:
-        id = self._db.session.execute(
+        reply_id = self._db.session.execute(
             """
             INSERT INTO replies (
                 reply_id,
@@ -24,10 +24,10 @@ class ReplyService:
                 "user_id": -1,
                 "content": ""
             }
-            
+
         ).fetchone()[0]
         self._db.session.commit()
-        return id
+        return reply_id
 
     def create_reply_section(self, post_id):
         main_reply_id = self._create_main_reply()
@@ -46,7 +46,7 @@ class ReplyService:
             }
         )
         self._db.session.commit()
-    
+
     def create_reply(self, reply_id, user_id, content):
         self._db.session.execute(
             """
@@ -58,7 +58,7 @@ class ReplyService:
             VALUES (
                 :reply_id,
                 :user_id,
-                :content 
+                :content
             )
             """, {
                 "user_id":user_id,
@@ -98,7 +98,7 @@ class ReplyService:
                 user_id,
                 points
             )
-            SELECT reply_id, :user_id, :points 
+            SELECT reply_id, :user_id, :points
             FROM reply_section
             WHERE post_id=:post_id
             ON CONFLICT (reply_id, user_id)
@@ -119,7 +119,7 @@ class ReplyService:
                 user_id,
                 content
             )
-            SELECT reply_id, :user_id, :content 
+            SELECT reply_id, :user_id, :content
             FROM reply_section
             WHERE post_id=:post_id
             """, {
@@ -133,7 +133,7 @@ class ReplyService:
     def get_post_replies(self, post_id):
         replies = self._db.session.execute(
             """
-            SELECT replies.*, users.username 
+            SELECT replies.*, users.username
             FROM replies
             LEFT JOIN users
             ON replies.user_id = users.id

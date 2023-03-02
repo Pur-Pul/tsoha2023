@@ -72,7 +72,7 @@ class EditorService:
             }
         )
         self._db.session.commit()
-    
+
     def undo_action(self, user_id):
         old_action = self._db.session.execute(
             """
@@ -80,7 +80,7 @@ class EditorService:
             WHERE user_id=:user_id
             AND order_number=(
                                 SELECT MAX(order_number)
-                                FROM editors 
+                                FROM editors
                                 WHERE user_id=:user_id
                             )
             RETURNING *;
@@ -88,7 +88,7 @@ class EditorService:
         ).fetchall()
         self._db.session.commit()
         return_val = {"old_action":[], "new_action":[]}
-        
+
         for pixel in old_action:
             new = self._db.session.execute(
                 """
@@ -98,7 +98,7 @@ class EditorService:
                 AND row_number=:row_number
                 AND order_number=(
                                     SELECT MAX(order_number)
-                                    FROM editors 
+                                    FROM editors
                                     WHERE user_id=:user_id
                                     AND col_number=:col_number
                                     AND row_number=:row_number
