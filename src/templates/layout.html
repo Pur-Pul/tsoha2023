@@ -78,6 +78,13 @@
                 box-shadow: 2px 2px rgb(204, 193, 178);
                 cursor: pointer;
             }
+            .search_box {
+                float: right;
+            }
+            .search_box input:not(#search){
+                border: 1px solid black;
+                margin-top: 3px;
+            }
         </style>
     </head>
     <body>
@@ -92,9 +99,17 @@
                     <a id="content" href="/posts/old">Old</a>
                     <a id="content" href="/posts/popular">Popular</a>
                 </div>
-            </div> 
+            </div>
+            <div class="search_box">
+                <input type="text" name="search" id="search">
+                <input type="button" value="Search" class="action_button" onclick="search()">
+            </div>
         </ul>
         <script type="text/javascript">
+            function search() {
+                let query = document.getElementById("search").value;
+                window.location.href = "/posts/"+query;
+            }
             $(document).ready(function() {
                 $("[href]").each(function() {
                     if (this.href == window.location.href && this.id!="content") {

@@ -26,6 +26,7 @@ class PostService:
         return post_id
 
     def get_posts(self, option):
+        params = {}
         sql = """
             SELECT posts.id, posts.image_id, posts.title, posts.time, COALESCE(SUM(votes.points),0) AS votes
             FROM posts
@@ -33,14 +34,17 @@ class PostService:
             ON posts.id = reply_section.post_id
             LEFT JOIN votes
             ON reply_section.reply_id = votes.reply_id
-            GROUP BY posts.id 
             """
         sort_option = {
             "new" : "ORDER BY posts.time DESC",
             "old" : "ORDER BY posts.time",
             "popular" : "ORDER BY votes DESC"
         }
-        posts = self._db.session.execute(sql+sort_option[option]).fetchall()
+        if option not in sort_option:
+            params = {"query":"%"+option+"%"}
+            sql += "WHERE posts.title LIKE :query "
+            sort_option[option] = ""
+        posts = self._db.session.execute(sql+"GROUP BY posts.id "+sort_option[option], params).fetchall()
         return posts
 
     def clear_post(self, post_id):
